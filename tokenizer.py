@@ -10,7 +10,7 @@ class TokenizerNMT(Tokenizer):
 
         # the dataset passed to the tokenizer should be the development and test set together
         self.fit_on_texts(dataset)  # builds the list of words from the dataset
-        self.index_word = dict(zip(self.word_index.values(), self.word_index.keys()))  # creates token-word link
+        # self.index_word = dict(zip(self.word_index.values(), self.word_index.keys()))  # creates token-word link
         self.dataset_tokens = self.texts_to_sequences(dataset)  # tokenizes the dataset
 
         trun = "post"
