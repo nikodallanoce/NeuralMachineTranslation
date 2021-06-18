@@ -2,4 +2,3 @@ __pycache__
 .metadata
 .DS_Store
 dataset
-main.py
