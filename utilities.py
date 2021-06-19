@@ -24,8 +24,6 @@ def create_dataset(eng_ita=True):
 
 def split_set(tokenizer_src: TokenizerNMT, tokenizer_dst: TokenizerNMT, test: float):
     n = int(len(tokenizer_src.tokens) * (1-test))
-    # dataset = zip(tokenizer_src.tokens, tokenizer_dst.tokens)
-    # np.random.shuffle(dataset)
     dev_set = zip(tokenizer_src.tokens[:n, :], tokenizer_dst.tokens[:n, :])
     test_set = zip(tokenizer_src.tokens[n:, :], tokenizer_dst.tokens[n:, :])
     return dev_set, test_set

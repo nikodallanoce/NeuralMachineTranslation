@@ -9,9 +9,9 @@ class TokenizerNMT(Tokenizer):
         super(TokenizerNMT, self).__init__(num_words=num_words)
 
         # the dataset passed to the tokenizer should be the development and test set together
-        self.fit_on_texts(dataset)  # builds the list of words from the dataset
-        # self.index_word = dict(zip(self.word_index.values(), self.word_index.keys()))  # creates token-word link
-        self.dataset_tokens = self.texts_to_sequences(dataset)  # tokenizes the dataset
+        preprocessed_dataset = ["startsentence " + pattern + " endsentence" for pattern in dataset]
+        self.fit_on_texts(preprocessed_dataset)  # builds the list of words from the dataset
+        self.dataset_tokens = self.texts_to_sequences(preprocessed_dataset)  # tokenizes the dataset
 
         trun = "post"
         if reverse:
