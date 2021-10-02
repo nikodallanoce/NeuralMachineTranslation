@@ -1,4 +1,5 @@
 from tokenizer import *
+# import tensorflow as tf
 
 
 def create_patterns(name: str):
@@ -8,7 +9,7 @@ def create_patterns(name: str):
     return sentences
 
 
-def create_dataset(eng_ita=True):
+def create_dataset_europarl(eng_ita=True):
     src, dst = 'en', 'it'
     if not eng_ita:
         src, dst = 'it', 'en'
@@ -24,6 +25,17 @@ def create_dataset(eng_ita=True):
 
 def split_set(tokenizer_src: TokenizerNMT, tokenizer_dst: TokenizerNMT, test: float):
     n = int(len(tokenizer_src.tokens) * (1-test))
-    dev_set = zip(tokenizer_src.tokens[:n, :], tokenizer_dst.tokens[:n, :])
-    test_set = zip(tokenizer_src.tokens[n:, :], tokenizer_dst.tokens[n:, :])
+    dev_set = list(zip(tokenizer_src.tokens[:n, :], tokenizer_dst.tokens[:n, :]))
+    test_set = list(zip(tokenizer_src.tokens[n:, :], tokenizer_dst.tokens[n:, :]))
     return dev_set, test_set
+
+
+def create_dataset_anki(name: str):
+    with open(name, encoding="UTF-8") as datafile:
+        src_set = list()
+        dst_set = list()
+        for sentence in datafile:
+            src_set.append(sentence.split("\t")[0])
+            dst_set.append(sentence.split("\t")[1])
+
+    return np.array(src_set), np.array(dst_set)
