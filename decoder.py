@@ -71,7 +71,7 @@ class DecoderRNN(keras.models.Model):
         out = tf.concat([tf.squeeze(context, 0), rnn_state], 1)
 
         # Generate the token probabilities
-        out = keras.activations.tanh(out)
+        out = keras.activations.relu(out)
         out = self.out_layer(out)
         return out, rnn_state, rnn_c
 

@@ -12,8 +12,8 @@ class Attention(keras.layers.Layer):
     def call(self, dec_h_state: tf.Tensor, encoder_out: tf.Tensor = None, src_mask: tf.Tensor = None) -> tf.Tensor:
         att_score = tf.matmul(dec_h_state, encoder_out, transpose_b=True)
         att_score = tf.multiply(att_score, tf.cast(src_mask, tf.float32))
-        context = keras.activations.softmax(att_score, axis=2)
-        context = tf.matmul(context, encoder_out)
+        att_weights = keras.activations.softmax(att_score, axis=2)
+        context = tf.matmul(att_weights, encoder_out)
         return context
 
 # Da qui in poi è roba tua Niko, riguardiamola insieme
