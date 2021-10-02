@@ -1,7 +1,5 @@
 import keras.activations
 from keras.layers import Dropout, LSTM, Dense, GRU, Embedding
-# import numpy as np
-# import tensorflow as tf
 from attention import *
 
 
