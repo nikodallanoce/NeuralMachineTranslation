@@ -40,14 +40,4 @@ if __name__ == '__main__':
     model = TransformerNMT(encoder, decoder, tokenizer_en, tokenizer_it)
     out = model.train(en_set[:50], it_set[:50], 10)
     print(out)
-    """for i in range(len(enc_out)):
-        att_mask = tf.expand_dims(att_mask_en[i], 0)
-        h_state = tf.expand_dims(enc_out[i, -1], 0)
-        c_state = tf.expand_dims(enc_out[i, -1], 0)
-        translation = list()
-        for token in tokens_it[i]:
-            token = tf.reshape(token, (1, 1))
-            dec_out, h_state, c_state = decoder(token, enc_out[i], att_mask, [h_state, c_state])
-            translation.append(tokenizer_it.decode(tf.argmax(dec_out, axis=1)))
-        break"""
     print()
