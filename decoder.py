@@ -68,7 +68,7 @@ class DecoderRNN(keras.models.Model):
         context = self.att_dropout(context)
 
         # Concatenate decoder hidden state with attention scores
-        out = tf.concat([tf.squeeze(context, 0), rnn_state], 1)
+        out = tf.concat([context, rnn_state], 1)
 
         # Generate the token probabilities
         out = keras.activations.relu(out)

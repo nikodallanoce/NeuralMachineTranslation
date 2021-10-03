@@ -38,4 +38,4 @@ def create_dataset_anki(name: str):
             src_set.append(sentence.split("\t")[0])
             dst_set.append(sentence.split("\t")[1])
 
-    return np.array(src_set), np.array(dst_set)
+    return src_set, dst_set
