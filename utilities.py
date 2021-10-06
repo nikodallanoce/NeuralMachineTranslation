@@ -1,5 +1,5 @@
-from tokenizer import *
-# import tensorflow as tf
+# from tokenizer import *
+import tensorflow as tf
 
 
 def create_patterns(name: str):
@@ -23,11 +23,30 @@ def create_dataset_europarl(eng_ita=True):
     return ds
 
 
-def split_set(tokenizer_src: TokenizerNMT, tokenizer_dst: TokenizerNMT, test: float):
-    n = int(len(tokenizer_src.tokens) * (1-test))
-    dev_set = list(zip(tokenizer_src.tokens[:n, :], tokenizer_dst.tokens[:n, :]))
-    test_set = list(zip(tokenizer_src.tokens[n:, :], tokenizer_dst.tokens[n:, :]))
-    return dev_set, test_set
+def split_set(dataset: tf.data.Dataset,
+              tr: float = 0.8,
+              val: float = 0.1,
+              ts: float = 0.1,
+              shuffle: bool = True) -> (tf.data.Dataset, tf.data.Dataset, tf.data.Dataset):
+    if tr+val+ts != 1:
+        raise ValueError("Train, validation and test partition not allowed with such splits")
+
+    dataset_size = dataset.cardinality().numpy()
+    # dataset_size = dataset.element_spec[0].shape[0]
+    if shuffle:
+        dataset = dataset.shuffle(dataset_size)
+
+    tr_size = int(tr * dataset_size)
+    val_size = int(val * dataset_size)
+
+    tr_set = dataset.take(tr_size)
+    val_set = dataset.skip(tr_size).take(val_size)
+    ts_set = dataset.skip(tr_size).skip(val_size)
+    return tr_set, val_set, ts_set
+
+
+def make_batches(dataset_src_dst: tf.data.Dataset, batch_size: int):
+    return dataset_src_dst.cache().batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
 
 
 def create_dataset_anki(name: str):

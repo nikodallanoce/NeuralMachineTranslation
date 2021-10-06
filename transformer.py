@@ -52,8 +52,8 @@ class TransformerNMT:
 
         att_masks: tf.Tensor = src_dataset_tokenized.data["attention_mask"]  # Source sentences attention masks
         tokens_dst: tf.Tensor = dst_dataset_tokenized.data["input_ids"]  # Target sentences tokens
+        enc_out = self.encoder(**src_dataset_tokenized)[0]  # Encode source sentences
         for epoch in tqdm(range(epochs)):
-            enc_out = self.encoder(**src_dataset_tokenized)[0]  # Encode source sentences
             loss = 0
             for i in range(len(enc_out)):
                 loss += self.__train_step(enc_out[i], tokens_dst[i], tf.expand_dims(att_masks[i], 0))
