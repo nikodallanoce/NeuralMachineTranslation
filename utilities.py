@@ -1,5 +1,5 @@
-# from tokenizer import *
 import tensorflow as tf
+import numpy as np
 
 
 def create_patterns(name: str):
@@ -23,6 +23,21 @@ def create_dataset_europarl(eng_ita=True):
     return ds
 
 
+def create_dataset_anki(name: str, preprocessed: bool = False):
+    with open(name, encoding="UTF-8") as datafile:
+        src_set = list()
+        dst_set = list()
+        for sentence in datafile:
+            sentence = sentence.split("\t")
+            src_set.append(sentence[0])
+            if preprocessed:
+                dst_set.append(sentence[1].split("\n")[0])
+            else:
+                dst_set.append(sentence[1])
+
+    return src_set, dst_set
+
+
 def split_set(dataset: tf.data.Dataset,
               tr: float = 0.8,
               val: float = 0.1,
@@ -32,7 +47,6 @@ def split_set(dataset: tf.data.Dataset,
         raise ValueError("Train, validation and test partition not allowed with such splits")
 
     dataset_size = dataset.cardinality().numpy()
-    # dataset_size = dataset.element_spec[0].shape[0]
     if shuffle:
         dataset = dataset.shuffle(dataset_size)
 
@@ -49,12 +63,27 @@ def make_batches(dataset_src_dst: tf.data.Dataset, batch_size: int):
     return dataset_src_dst.cache().batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
 
 
-def create_dataset_anki(name: str):
-    with open(name, encoding="UTF-8") as datafile:
-        src_set = list()
-        dst_set = list()
-        for sentence in datafile:
-            src_set.append(sentence.split("\t")[0])
-            dst_set.append(sentence.split("\t")[1])
+def __get_angles(pos, i, d_model):
+    angle_rates = 1 / np.power(10000, (2 * (i//2)) / np.float32(d_model))
+    return pos * angle_rates
 
-    return src_set, dst_set
+
+def positional_encoding(position, d_model):
+    angle_rads = __get_angles(np.arange(position)[:, np.newaxis], np.arange(d_model)[np.newaxis, :], d_model)
+
+    # apply sin to even indices in the array; 2i
+    angle_rads[:, 0::2] = np.sin(angle_rads[:, 0::2])
+
+    # apply cos to odd indices in the array; 2i+1
+    angle_rads[:, 1::2] = np.cos(angle_rads[:, 1::2])
+
+    pos_encoding = angle_rads[np.newaxis, ...]
+
+    return tf.cast(pos_encoding, dtype=tf.float32)
+
+
+def point_wise_feed_forward_network(d_model, dff):
+    return tf.keras.Sequential([
+      tf.keras.layers.Dense(dff, activation='relu'),  # (batch_size, seq_len, dff)
+      tf.keras.layers.Dense(d_model)  # (batch_size, seq_len, d_model)
+    ])

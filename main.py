@@ -1,6 +1,5 @@
-from utilities import *
-# import tensorflow as tf
-from transformers import TFBertModel, BertTokenizer, AutoTokenizer, logging
+from transformers import TFBertModel, BertTokenizer, logging
+from encoder import *
 from decoder import *
 from transformer import TransformerNMT
 
@@ -14,7 +13,7 @@ if __name__ == '__main__':
     # Create the tokenizers and get the number of tokens
     logging.set_verbosity_error()  # suppress warnings for transformers
     tokenizer_en = BertTokenizer.from_pretrained("bert-base-uncased")
-    tokenizer_it = AutoTokenizer.from_pretrained("dbmdz/bert-base-italian-uncased")
+    tokenizer_it = BertTokenizer.from_pretrained("dbmdz/bert-base-italian-uncased")
     v_size_en = tokenizer_en.vocab_size
     v_size_it = tokenizer_it.vocab_size
 
@@ -28,17 +27,14 @@ if __name__ == '__main__':
 
     # Build the dataset and split it in train, validation and test
     dataset = tf.data.Dataset.from_tensor_slices((tokens_en, tokens_it))  # build the tf dataset
-    # dataset_not_tokens = tf.data.Dataset.from_tensor_slices((en_set[:50000], it_set[:50000]))
     tr_set, val_set, ts_set = split_set(dataset, 0.8, 0.1, 0.1)  # split the tf dataset
 
     tr_batches = make_batches(tr_set, 128)
     val_batches = make_batches(val_set, 128)
-    for batch, (src, dst) in enumerate(tr_batches):
-        dst_in = dst[:, :-1]
-        dst_out = dst[:, 1:]
 
     # Build encoder and decoder
-    encoder: TFBertModel = TFBertModel.from_pretrained("bert-base-uncased")
+    # encoder: TFBertModel = TFBertModel.from_pretrained("bert-base-uncased")
+    encoder = EncoderTransformer(8, 512, 8, 2048, v_size_en, 10000)
     decoder = DecoderRNN("lstm", v_size=v_size_it, emb_dropout=0, layers_dropout=0, att_dropout=0)
 
     model = TransformerNMT(encoder, decoder, tokenizer_en, tokenizer_it)

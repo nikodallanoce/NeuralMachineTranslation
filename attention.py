@@ -1,8 +1,7 @@
 import tensorflow as tf
-import keras
 
 
-class Attention(keras.layers.Layer):
+class Attention(tf.keras.layers.Layer):
 
     def __init__(self, dec_layers_size: int, att_type: str):
         super(Attention, self).__init__()
@@ -12,7 +11,7 @@ class Attention(keras.layers.Layer):
     def call(self, dec_h_state: tf.Tensor, encoder_out: tf.Tensor = None, src_mask: tf.Tensor = None) -> tf.Tensor:
         att_score = tf.matmul(dec_h_state, encoder_out, transpose_b=True)
         att_score = tf.multiply(att_score, tf.cast(src_mask, tf.float32))
-        att_weights = keras.activations.softmax(att_score, axis=2)
+        att_weights = tf.keras.activations.softmax(att_score, axis=2)
         context = tf.matmul(att_weights, encoder_out)
         return context
 
@@ -54,8 +53,6 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         k = self.split_heads(k, batch_size)  # (batch_size, num_heads, seq_len_k, depth)
         v = self.split_heads(v, batch_size)  # (batch_size, num_heads, seq_len_v, depth)
 
-        # scaled_attention.shape == (batch_size, num_heads, seq_len_q, depth)
-        # attention_weights.shape == (batch_size, num_heads, seq_len_q, seq_len_k)
         scaled_attention, attention_weights = self.scaled_dot_product_attention(
             q, k, v, mask)
 

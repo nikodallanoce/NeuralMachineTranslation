@@ -1,28 +1,60 @@
-from transformers import TFBertModel, BertTokenizer
-from abc import ABC, abstractmethod
-import keras
+from utilities import positional_encoding
+from attention import *
+from layerTransformer import EncoderLayer
 
 
-class Encoder(keras.models.Model):
+class EncoderRNN(tf.keras.layers.Layer):
 
-    def __init__(self, model, tokenizer: BertTokenizer):
-        super(Encoder, self).__init__()
-        self.model = model
-        self.tokenizer = tokenizer  # il tokenizer possiamo metterlo direttamente nel transformer
+    def __init__(self,
+                 d_model: int,
+                 src_vocab_size: int,
+                 dropout: float = 0.1):
+        super(EncoderRNN, self).__init__()
 
-    @abstractmethod
-    def encode(self, src: str):
-        pass
+        self.d_model = d_model
 
-    def call(self):
-        return None
+        self.embedding = tf.keras.layers.Embedding(src_vocab_size, d_model)
+        self.rnn = tf.keras.layers.LSTM(d_model, return_sequences=True, return_state=True,)
+        self.dropout = tf.keras.layers.Dropout(dropout)
+
+    def call(self, x, training, h_state):
+        x = self.embedding(x, training=training)  # (batch_size, input_seq_len, d_model)
+        out, h_state, c_state = self.rnn(x, inintial_state=h_state)
+        return out, h_state, c_state  # (batch_size, input_seq_len, d_model)
 
 
-class BertEncoder(Encoder):
+class EncoderTransformer(tf.keras.layers.Layer):
 
-    def __init__(self, bert_model: TFBertModel, tokenizer: BertTokenizer):
-        super(BertEncoder, self).__init__(bert_model, tokenizer)
+    def __init__(self, num_layers: int,
+                 d_model: int,
+                 num_heads: int,
+                 dff: int,
+                 src_vocab_size: int,
+                 maximum_position_encoding: int,
+                 dropout: float = 0.1):
+        super(EncoderTransformer, self).__init__()
 
-    def encode(self, tokens):
-        out = self.model.call(**tokens, output_hidden_states=True)
-        return out
+        self.d_model = d_model
+        self.num_layers = num_layers
+
+        self.embedding = tf.keras.layers.Embedding(src_vocab_size, d_model)
+        self.pos_encoding = positional_encoding(maximum_position_encoding, self.d_model)
+
+        self.enc_layers = [EncoderLayer(d_model, num_heads, dff, dropout) for _ in range(num_layers)]
+
+        self.dropout = tf.keras.layers.Dropout(dropout)
+
+    def call(self, x: tf.Tensor, training: bool, mask: tf.Tensor):
+        seq_len = tf.shape(x)[1]
+
+        # adding embedding and position encoding.
+        x = self.embedding(x)  # (batch_size, input_seq_len, d_model)
+        x *= tf.math.sqrt(tf.cast(self.d_model, tf.float32))
+        x += self.pos_encoding[:, :seq_len, :]
+
+        x = self.dropout(x, training=training)
+
+        for i in range(self.num_layers):
+            x = self.enc_layers[i].call(x, training, mask)
+
+        return x  # (batch_size, input_seq_len, d_model)

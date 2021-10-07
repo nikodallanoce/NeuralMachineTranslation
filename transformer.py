@@ -1,4 +1,3 @@
-import keras
 import tensorflow as tf
 from transformers import TFBertModel, BertTokenizer, AutoTokenizer
 from tqdm import tqdm
@@ -8,7 +7,7 @@ class TransformerNMT:
 
     def __init__(self,
                  encoder: TFBertModel,
-                 decoder: keras.models.Model,
+                 decoder: tf.keras.models.Model,
                  tokenizer_src: BertTokenizer,
                  tokenizer_dst: AutoTokenizer,
                  lan_src: str = "english",
@@ -36,7 +35,7 @@ class TransformerNMT:
 
         tr_p = self.decoder.trainable_variables
         gradients = tape.gradient(loss, tr_p)
-        optimizer = keras.optimizers.Adam()
+        optimizer = tf.keras.optimizers.Adam()
         optimizer.apply_gradients(zip(gradients, tr_p))
         return loss/len(dst)
 

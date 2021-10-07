@@ -1,9 +1,11 @@
-import keras.activations
-from keras.layers import Dropout, LSTM, Dense, GRU, Embedding
+import tensorflow.keras.activations
+from tensorflow.keras.layers import Dropout, LSTM, Dense, GRU, Embedding
 from attention import *
+from utilities import *
+from layerTransformer import DecoderLayer
 
 
-class DecoderRNN(keras.models.Model):
+class DecoderRNN(tensorflow.keras.models.Model):
 
     def get_config(self):
         pass
@@ -64,29 +66,52 @@ class DecoderRNN(keras.models.Model):
 
         # Decoder step, token by token
         _, rnn_state, rnn_c = self.decoder(emb_dst, initial_state=h_state)
-        context = self.attention(rnn_state, encoder_out, src_mask)
+        context = self.attention.call(rnn_state, encoder_out, src_mask)
         context = self.att_dropout(context)
 
         # Concatenate decoder hidden state with attention scores
         out = tf.concat([context, rnn_state], 1)
 
         # Generate the token probabilities
-        out = keras.activations.relu(out)
+        out = tf.keras.activations.relu(out)
         out = self.out_layer(out)
         return out, rnn_state, rnn_c
 
 
-class DecoderTransformer(keras.models.Model):
+class DecoderTransformer(tf.keras.models.Model):
 
-    def get_config(self):
-        pass
-
-    def __init__(self,) -> None:
+    def __init__(self,
+                 num_layers: int,
+                 d_model: int,
+                 num_heads: int,
+                 dff: int,
+                 target_vocab_size: int,
+                 maximum_position_encoding: int, dropout=0.1):
         super(DecoderTransformer, self).__init__()
 
-    def call(self,
-             dst_tokens: tf.Tensor,
-             enc_out: tf.Tensor = None,
-             src_mask: tf.Tensor = None,
-             out_encoder: tf.Tensor = None):
-        return None
+        self.d_model = d_model
+        self.num_layers = num_layers
+
+        self.embedding = tf.keras.layers.Embedding(target_vocab_size, d_model)
+        self.pos_encoding = positional_encoding(maximum_position_encoding, d_model)
+
+        self.dec_layers = [DecoderLayer(d_model, num_heads, dff, dropout) for _ in range(num_layers)]
+        self.dropout = tf.keras.layers.Dropout(dropout)
+
+    def call(self, x, enc_output, training, look_ahead_mask, padding_mask):
+        seq_len = tf.shape(x)[1]
+        attention_weights = {}
+
+        x = self.embedding(x)  # (batch_size, target_seq_len, d_model)
+        x *= tf.math.sqrt(tf.cast(self.d_model, tf.float32))
+        x += self.pos_encoding[:, :seq_len, :]
+
+        x = self.dropout(x, training=training)
+
+        for i in range(self.num_layers):
+            x, block1, block2 = self.dec_layers[i].call(x, enc_output, training, look_ahead_mask, padding_mask)
+
+            attention_weights[f'decoder_layer{i + 1}_block1'] = block1
+            attention_weights[f'decoder_layer{i + 1}_block2'] = block2
+
+        return x, attention_weights
