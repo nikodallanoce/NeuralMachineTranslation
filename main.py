@@ -35,9 +35,9 @@ if __name__ == '__main__':
     # Build encoder and decoder
     encoderBert: TFBertModel = TFBertModel.from_pretrained("bert-base-uncased")
     encoder = EncoderTransformer(8, 512, 8, 2048, v_size_en, 10000)
-    decoder = DecoderRNN("lstm", v_size=v_size_it, emb_dropout=0, layers_dropout=0, att_dropout=0)
+    decoder = DecoderTransformer(8, 512, 8, 2048, v_size_it, 10000)
 
-    model = TransformerNMT(encoder, decoder, tokenizer_en, tokenizer_it)
+    model = TransformerNMT(encoder, decoder, v_size_it)
     # out = model.train(en_set[:50], it_set[:50], 10)
     # decoder.save("decoder_NMT.h5")
     # print(out)

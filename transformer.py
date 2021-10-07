@@ -6,12 +6,15 @@ class TransformerNMT(tf.keras.Model):
     def __init__(self,
                  encoder: tf.keras.layers.Layer,
                  decoder: tf.keras.layers.Layer,
+                 dst_v_size: int,
                  lan_src: str = "english",
                  lan_dst: str = "italian"):
+        super(TransformerNMT, self).__init__()
         self.encoder = encoder
         self.decoder = decoder
         self.lan_src = lan_src
         self.lan_dst = lan_dst
+        self.final_layer = tf.keras.layers.Dense(dst_v_size)
 
     @staticmethod
     def __create_masks(src, dst):

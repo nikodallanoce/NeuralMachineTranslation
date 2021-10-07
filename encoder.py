@@ -38,7 +38,7 @@ class EncoderTransformer(tf.keras.layers.Layer):
         self.num_layers = num_layers
 
         self.embedding = tf.keras.layers.Embedding(src_vocab_size, layers_size)
-        self.pos_encoding = positional_encoding(maximum_position_encoding, self.d_model)
+        self.pos_encoding = positional_encoding(maximum_position_encoding, self.layers_size)
 
         self.enc_layers = [EncoderLayer(layers_size, num_heads, dff, dropout) for _ in range(num_layers)]
 
