@@ -78,7 +78,7 @@ class DecoderRNN(tensorflow.keras.models.Model):
         return out, rnn_state, rnn_c
 
 
-class DecoderTransformer(tf.keras.models.Model):
+class DecoderTransformer(tf.keras.layers.Layer):
 
     def __init__(self,
                  num_layers: int,
@@ -86,7 +86,7 @@ class DecoderTransformer(tf.keras.models.Model):
                  num_heads: int,
                  dff: int,
                  target_vocab_size: int,
-                 maximum_position_encoding: int, dropout=0.1):
+                 maximum_position_encoding: int, dropout=0.1) -> None:
         super(DecoderTransformer, self).__init__()
 
         self.layers_size = layers_size
@@ -98,7 +98,12 @@ class DecoderTransformer(tf.keras.models.Model):
         self.dec_layers = [DecoderLayer(layers_size, num_heads, dff, dropout) for _ in range(num_layers)]
         self.dropout = tf.keras.layers.Dropout(dropout)
 
-    def call(self, dst_tokens, enc_output, training, look_ahead_mask, padding_mask):
+    def call(self,
+             dst_tokens: tf.Tensor,
+             enc_output: tf.Tensor,
+             training: bool,
+             look_ahead_mask: tf.Tensor,
+             padding_mask: tf.Tensor) -> (tf.Tensor, tf.Tensor):
         seq_len = tf.shape(dst_tokens)[1]
         attention_weights = {}
 

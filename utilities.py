@@ -23,7 +23,7 @@ def create_dataset_europarl(eng_ita=True):
     return ds
 
 
-def create_dataset_anki(name: str, preprocessed: bool = False):
+def create_dataset_anki(name: str, preprocessed: bool = False) -> (list, list):
     with open(name, encoding="UTF-8") as datafile:
         src_set = list()
         dst_set = list()

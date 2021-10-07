@@ -7,7 +7,7 @@ class EncoderLayer(tf.keras.layers.Layer):
                  layers_size: int,
                  num_heads: int,
                  dff: int,
-                 dropout: float = 0.1):
+                 dropout: float = 0.1) -> None:
         super(EncoderLayer, self).__init__()
 
         self.mha = MultiHeadAttention(layers_size, num_heads)
@@ -23,7 +23,7 @@ class EncoderLayer(tf.keras.layers.Layer):
         self.dropout1 = tf.keras.layers.Dropout(dropout)
         self.dropout2 = tf.keras.layers.Dropout(dropout)
 
-    def call(self, dst_tokens: tf.Tensor, training: bool, mask: tf.Tensor):
+    def call(self, dst_tokens: tf.Tensor, training: bool, mask: tf.Tensor) -> tf.Tensor:
         attn_output, _ = self.mha.call(dst_tokens, dst_tokens,
                                        dst_tokens, mask)  # (batch_size, input_seq_len, layers_size)
         attn_output = self.dropout1(attn_output, training=training)
@@ -40,7 +40,7 @@ class DecoderLayer(tf.keras.layers.Layer):
                  layers_size: int,
                  num_heads: int,
                  dff: int,
-                 dropout=0.1):
+                 dropout=0.1) -> None:
         super(DecoderLayer, self).__init__()
 
         self.mha1 = MultiHeadAttention(layers_size, num_heads)

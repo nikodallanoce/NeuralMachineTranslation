@@ -8,7 +8,7 @@ class EncoderRNN(tf.keras.layers.Layer):
     def __init__(self,
                  layers_size: int,
                  src_vocab_size: int,
-                 dropout: float = 0.1):
+                 dropout: float = 0.1) -> None:
         super(EncoderRNN, self).__init__()
 
         self.d_model = layers_size
@@ -17,7 +17,7 @@ class EncoderRNN(tf.keras.layers.Layer):
         self.rnn = tf.keras.layers.LSTM(layers_size, return_sequences=True, return_state=True,)
         self.dropout = tf.keras.layers.Dropout(dropout)
 
-    def call(self, src_tokens: tf.Tensor, training: bool, h_state: tf.Tensor):
+    def call(self, src_tokens: tf.Tensor, training: bool, h_state: tf.Tensor) -> (tf.Tensor, tf.Tensor, tf.Tensor):
         out = self.embedding(src_tokens, training=training)  # (batch_size, input_seq_len, layers_size)
         out, h_state, c_state = self.rnn(out, inintial_state=h_state)
         return out, h_state, c_state  # (batch_size, input_seq_len, layers_size)
@@ -31,7 +31,7 @@ class EncoderTransformer(tf.keras.layers.Layer):
                  dff: int,
                  src_vocab_size: int,
                  maximum_position_encoding: int,
-                 dropout: float = 0.1):
+                 dropout: float = 0.1) -> None:
         super(EncoderTransformer, self).__init__()
 
         self.layers_size = layers_size
@@ -44,7 +44,7 @@ class EncoderTransformer(tf.keras.layers.Layer):
 
         self.dropout = tf.keras.layers.Dropout(dropout)
 
-    def call(self, src_tokens: tf.Tensor, training: bool, mask: tf.Tensor):
+    def call(self, src_tokens: tf.Tensor, training: bool, mask: tf.Tensor) -> tf.Tensor:
         seq_len = tf.shape(src_tokens)[1]
 
         # adding embedding and position encoding.

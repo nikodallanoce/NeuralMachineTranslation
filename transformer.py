@@ -8,7 +8,7 @@ class TransformerNMT(tf.keras.Model):
                  decoder: tf.keras.layers.Layer,
                  dst_v_size: int,
                  lan_src: str = "english",
-                 lan_dst: str = "italian"):
+                 lan_dst: str = "italian") -> None:
         super(TransformerNMT, self).__init__()
         self.encoder = encoder
         self.decoder = decoder
@@ -17,7 +17,7 @@ class TransformerNMT(tf.keras.Model):
         self.final_layer = tf.keras.layers.Dense(dst_v_size)
 
     @staticmethod
-    def __create_masks(src, dst):
+    def __create_masks(src: tf.Tensor, dst: tf.Tensor) -> (tf.Tensor, tf.Tensor):
         # Encoder padding mask
         enc_padding_mask = create_padding_mask(src)
 
@@ -34,7 +34,7 @@ class TransformerNMT(tf.keras.Model):
 
         return enc_padding_mask, look_ahead_mask, dec_padding_mask
 
-    def call(self, inputs: list, training: bool):
+    def call(self, inputs: list, training: bool) -> (tf.Tensor, tf.Tensor):
         # Keras models prefer if you pass all your inputs in the first argument
         src, dst = inputs
 
