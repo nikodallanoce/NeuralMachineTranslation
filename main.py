@@ -33,7 +33,7 @@ if __name__ == '__main__':
     val_batches = make_batches(val_set, 128)
 
     # Build encoder and decoder
-    # encoder: TFBertModel = TFBertModel.from_pretrained("bert-base-uncased")
+    encoderBert: TFBertModel = TFBertModel.from_pretrained("bert-base-uncased")
     encoder = EncoderTransformer(8, 512, 8, 2048, v_size_en, 10000)
     decoder = DecoderRNN("lstm", v_size=v_size_it, emb_dropout=0, layers_dropout=0, att_dropout=0)
 
