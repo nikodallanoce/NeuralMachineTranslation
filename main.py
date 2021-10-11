@@ -30,8 +30,8 @@ if __name__ == '__main__':
     dataset = tf.data.Dataset.from_tensor_slices((tokens_en, tokens_it))  # build the tf dataset
     tr_set, val_set, ts_set = split_set(dataset, 0.8, 0.1, 0.1)  # split the tf dataset
 
-    tr_batches = make_batches(tr_set, 128)
-    val_batches = make_batches(val_set, 128)
+    tr_batches = make_batches(tr_set, 128)  # create the train batches
+    val_batches = make_batches(val_set, 128)  # create the validation batches
 
     # Build encoder and decoder
     encoderBert: TFBertModel = TFBertModel.from_pretrained("bert-base-uncased")
