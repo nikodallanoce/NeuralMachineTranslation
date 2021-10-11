@@ -2,6 +2,7 @@ from transformers import TFBertModel, BertTokenizer, logging
 from encoder import *
 from decoder import *
 from transformer import TransformerNMT
+from trainer import Trainer
 
 
 if __name__ == '__main__':
@@ -38,6 +39,8 @@ if __name__ == '__main__':
     decoder = DecoderTransformer(8, 512, 8, 2048, v_size_it, 10000)
 
     model = TransformerNMT(encoder, decoder, v_size_it)
+    trainer = Trainer(512, model)
+    trainer.train(10, tr_batches)
     # out = model.train(en_set[:50], it_set[:50], 10)
     # decoder.save("decoder_NMT.h5")
     # print(out)
