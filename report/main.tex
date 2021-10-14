@@ -1,0 +1,50 @@
+\documentclass[12pt, letterpaper]{article}  % change to >11 pt if you like, and change article with report
+\usepackage[letterpaper, top=3.71cm, bottom=3.20cm, left=2.86cm, right=2.86cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{subfig}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{url}
+
+\title{\vspace{-2cm}\textbf{Human Language Technologies project report}}
+\author{\textbf{\small{\textit{Dalla Noce Niko, Ristori Alessandro}}} \\ % put your full name here
+        \small{Master Degree in Computer science.}\\ \small{{n.dallanoce@studenti.unipi.it, a.ristori5@studenti.unipi.it}.} \\  % put your Master Degree here
+        \small{Human Language Technologies, Academic Year: 2020/2021} \\
+        \small{Date: 10/05/2021} \\
+       \textbf{\small{\url{https://github.com/nikodallanoce/HLT}}}
+}
+
+\renewcommand\refname{} %remove this line to automatically show the bibliography header
+
+\begin{document}
+
+\nocite{*}  % comment this line to list only the articles you really cite
+\date{}
+\maketitle
+\begin{center}
+    \includegraphics[width=0.2\textwidth]{images/unipi.png}\\
+    \vspace{0.5cm}
+\end{center}
+\begin{abstract}
+The document presents the problem we wish to address, a possible use case with the specifications necessary for the implementation of the project; we describe how to implement our system of sensors using MQTT and how to store their data in a non-relation database like MongoDB. Then, we show how an user can access the stored data through a Telegram bot. Finally, we highlight some features that can improve our project.
+\end{abstract}
+%\thispagestyle{empty}
+%\newpage
+%\tableofcontents
+%\listoffigures
+%\include{Sections/abstract}
+\newpage
+\tableofcontents
+\newpage
+\listoffigures
+\include{chapters/introduction}
+%\input{Sections/method}
+%\input{Sections/experiments}
+%\input{Sections/conclusion}
+\bibliography{references}
+
+\end{document}
+
