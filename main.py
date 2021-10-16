@@ -32,9 +32,10 @@ if __name__ == '__main__':
 
     tr_batches = make_batches(tr_set, 128)  # create the train batches
     val_batches = make_batches(val_set, 128)  # create the validation batches
+    # encoderrnn = EncoderRNN(v_size_en, 512)
 
     # Build encoder and decoder
-    encoderBert: TFBertModel = TFBertModel.from_pretrained("bert-base-uncased")
+    encoderBert: TFBertModel = TFBertModel.from_pretrained("bert-base-uncased", trainable=False)
     encoder = EncoderTransformer(8, 512, 8, 2048, v_size_en, 10000)
     decoder = DecoderTransformer(8, 512, 8, 2048, v_size_it, 10000)
 
