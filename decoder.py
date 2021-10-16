@@ -66,7 +66,7 @@ class DecoderRNN(tensorflow.keras.models.Model):
 
         # Decoder step, token by token
         _, rnn_state, rnn_c = self.decoder(emb_dst, initial_state=h_state)
-        context = self.attention.call(rnn_state, encoder_out, src_mask)
+        context = self.attention(rnn_state, encoder_out, src_mask)
         context = self.att_dropout(context)
 
         # Concatenate decoder hidden state with attention scores
@@ -114,7 +114,7 @@ class DecoderTransformer(tf.keras.layers.Layer):
         x = self.dropout(x, training=training)
 
         for i in range(self.num_layers):
-            x, block1, block2 = self.dec_layers[i].call(x, enc_output, training, look_ahead_mask, padding_mask)
+            x, block1, block2 = self.dec_layers[i](x, enc_output, training, look_ahead_mask, padding_mask)
 
             attention_weights[f'decoder_layer{i + 1}_block1'] = block1
             attention_weights[f'decoder_layer{i + 1}_block2'] = block2

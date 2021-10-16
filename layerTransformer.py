@@ -67,13 +67,13 @@ class DecoderLayer(tf.keras.layers.Layer):
              padding_mask: tf.Tensor):
         # enc_output.shape == (batch_size, input_seq_len, layers_size)
 
-        attn1, attn_weights_block1 = self.mha1.call(dst_tokens, dst_tokens, dst_tokens,
-                                                    look_ahead_mask)  # (batch_size, target_seq_len, layers_size)
+        attn1, attn_weights_block1 = self.mha1(dst_tokens, dst_tokens, dst_tokens,
+                                               look_ahead_mask)  # (batch_size, target_seq_len, layers_size)
         attn1 = self.dropout1(attn1, training=training)
         out1 = self.layernorm1(attn1 + dst_tokens)
 
-        attn2, attn_weights_block2 = self.mha2.call(enc_output, enc_output,
-                                                    out1, padding_mask)  # (batch_size, target_seq_len, layers_size)
+        attn2, attn_weights_block2 = self.mha2(enc_output, enc_output,
+                                               out1, padding_mask)  # (batch_size, target_seq_len, layers_size)
         attn2 = self.dropout2(attn2, training=training)
         out2 = self.layernorm2(attn2 + out1)  # (batch_size, target_seq_len, layers_size)
 

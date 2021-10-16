@@ -20,7 +20,7 @@ class Trainer:
         dst_real = dst[:, 1:]
 
         with tf.GradientTape() as tape:
-            predictions, _ = self.transformer.call([src, dst_inp], training=True)
+            predictions, _ = self.transformer([src, dst_inp], training=True)
             loss = loss_function(dst_real, predictions)
 
         gradients = tape.gradient(loss, self.transformer.trainable_variables)
@@ -53,6 +53,9 @@ class Trainer:
 
 
 class CustomSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
+    def get_config(self):
+        pass
+
     def __init__(self, layers_size, warmup_steps=4000):
         super(CustomSchedule, self).__init__()
 

@@ -40,9 +40,9 @@ class TransformerNMT(tf.keras.Model):
 
         enc_padding_mask, look_ahead_mask, dec_padding_mask = self.__create_masks(src, dst)
 
-        enc_output = self.encoder.call(src, training, enc_padding_mask)  # (batch_size, inp_seq_len, layers_size)
+        enc_output = self.encoder(src, training, enc_padding_mask)  # (batch_size, inp_seq_len, layers_size)
 
-        dec_output, attention_weights = self.decoder.call(dst, enc_output, training, look_ahead_mask, dec_padding_mask)
+        dec_output, attention_weights = self.decoder(dst, enc_output, training, look_ahead_mask, dec_padding_mask)
 
         final_output = self.final_layer(dec_output)  # (batch_size, tar_seq_len, target_vocab_size)
 
