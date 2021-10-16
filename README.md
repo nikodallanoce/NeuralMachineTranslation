@@ -6,3 +6,4 @@ English-Italian
 Europarl Corpus or http://www.manythings.org/anki/
 
 https://www.tensorflow.org/addons/tutorials/networks_seq2seq_nmt
+https://www.tensorflow.org/text/tutorials/transformer
