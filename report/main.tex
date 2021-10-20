@@ -8,6 +8,9 @@
 \usepackage{float}
 \usepackage{hyperref}
 \usepackage{url}
+%\usepackage{pythontex}
+\definecolor{bg}{gray}{0.95}
+\usepackage{minted}
 
 \title{\vspace{-2cm}\textbf{Human Language Technologies project report}}
 \author{\textbf{\small{\textit{Dalla Noce Niko, Ristori Alessandro}}} \\ % put your full name here
@@ -29,22 +32,16 @@
     \vspace{0.5cm}
 \end{center}
 \begin{abstract}
-The document presents the problem we wish to address, a possible use case with the specifications necessary for the implementation of the project; we describe how to implement our system of sensors using MQTT and how to store their data in a non-relation database like MongoDB. Then, we show how an user can access the stored data through a Telegram bot. Finally, we highlight some features that can improve our project.
+The report starts with a long, but needed introduction to the main concepts that we've seen during the course of our work and it shows what was our purpose and how we reached it. Then it shows the results obtained by the models we tried giving at the same time the reasons of their performances. The report concludes with our final considerations on what and how we could have done more.
 \end{abstract}
-%\thispagestyle{empty}
-%\newpage
-%\tableofcontents
-%\listoffigures
-%\include{Sections/abstract}
 \newpage
 \tableofcontents
 \newpage
 \listoffigures
 \include{chapters/introduction}
-%\input{Sections/method}
-%\input{Sections/experiments}
-%\input{Sections/conclusion}
-\bibliography{references}
+\include{chapters/datasets}
+\include{chapters/task}
+\include{chapters/references}
 
 \end{document}
 

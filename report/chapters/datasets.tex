@@ -1,0 +1,25 @@
+\section{Datasets}\label{sec:dataset}
+Before showing our task and results, we thought it was necessary to explain where we found our datasets and how we preprocessed them. Unlike many of our colleagues that retrieved their datasets from various challenges on kaggle.com we followed the professor suggestion and downloaded the europarliament en-it corpus, however we've found ourselves overwhelmed since the dataset was so huge, and filled with extremely long sentences, that we opted for a second dataset for a first analysis of our model architecture and behaviour, that's why we used the en-it anki corpus which contains way less records than the first corpus but enough to build a simple NMT model.
+\subsection{ANKI en-it dataset}
+The anki corpus we chose to work on was the english-italian which contained 350360 records at the time of our download and then we preprocessed and divided it in our development (training and validation) and test sets.
+\subsubsection{Preprocessing the anki corpus}
+The corpus was, luckily, without any issue, we just had to take away the copyrights from each single sentence pair, which was done by a simple python method. Moreover we had two versions of the corpus, one with no copyright and one without, the method takes care of this case too.
+\begin{minted}{python}
+def create_dataset_anki(name: str, preprocessed: bool = False):
+    with open(name, encoding="UTF-8") as datafile:
+        src_set = list()
+        dst_set = list()
+        for sentence in datafile:
+            sentence = sentence.split("\t")
+            src_set.append(sentence[0])
+            if preprocessed:
+                dst_set.append(sentence[1].split("\n")[0])
+            else:
+                dst_set.append(sentence[1])
+
+    return src_set, dst_set
+\end{minted}
+The method returns two lists, one for the english sentences and one for the italian ones, we then tokenized both the lists and we proceeded with the creation of our training, validation and test sets with the (0.8, 0.1, 0.1) split.
+At this point the training set is divided in batches and is ready to be fed to the model.
+\subsection{EuroParl en-it dataset}
+\subsubsection{Preprocessing the europarl corpus}
