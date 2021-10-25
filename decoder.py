@@ -1,81 +1,39 @@
-import tensorflow.keras.activations
-from tensorflow.keras.layers import Dropout, LSTM, Dense, GRU, Embedding
-from attention import *
-from utilities import *
+from utilities import positional_encoding
 from layerTransformer import DecoderLayer
+import tensorflow as tf
 
 
-class DecoderRNN(tensorflow.keras.models.Model):
+class DecoderRNN(tf.keras.layers.Layer):
 
-    def get_config(self):
-        pass
-
-    def __init__(self,
-                 rnn_type: str = "lstm",
-                 emb_size: int = 768,
-                 layers_size: int = 768,
-                 v_size: int = 0,
-                 emb_dropout: float = 0.1,
-                 layers_dropout: float = 0.1,
-                 att_dropout: float = 0.1,
-                 freeze_parameters: bool = False) -> None:
-        """
-        Setup the rnn decoder
-        :param rnn_type: the type of RNN, LSTM or GRU
-        :param layers_size: size of the rnn layers (number of units)
-        :param v_size: size of the target language
-        :param emb_dropout: dropout applied to the last encoder hidden state
-        :param layers_dropout: dropout applied beetween each rnn layer
-        :param att_dropout: dropout applied after the attention mechanism
-        :param freeze_parameters: if the parameters should be frozen
-        """
+    def __init__(self, dst_v_size: int, layers_size: int) -> None:
         super(DecoderRNN, self).__init__()
-
+        self.dst_v_size = dst_v_size
         self.layers_size = layers_size
-        self.emb_layer = Embedding(v_size, emb_size)
-        self.emb_dropout = Dropout(emb_dropout)
 
-        if rnn_type == "lstm":
-            decoder = LSTM
-        elif rnn_type == "gru":
-            decoder = GRU
-        else:
-            raise ValueError("The decoder must be LSTM or GRU")
+        self.embedding = tf.keras.layers.Embedding(dst_v_size, layers_size)
 
-        self.decoder = decoder(layers_size, dropout=layers_dropout, return_sequences=True, return_state=True)
-        self.attention = Attention(layers_size, "general")
-        self.att_dropout = Dropout(att_dropout)
-        self.out_layer = Dense(v_size, activation="softmax")
-        self.freeze_parameters = freeze_parameters
+        self.gru = tf.keras.layers.GRU(layers_size, return_sequences=True, return_state=True,
+                                       recurrent_initializer='glorot_uniform')
+
+        self.attention = tf.keras.layers.Attention(layers_size)
+
+        self.Wc = tf.keras.layers.Dense(layers_size, activation=tf.math.tanh)
+
+        self.fc = tf.keras.layers.Dense(self.output_vocab_size)
 
     def call(self,
              dst_tokens: tf.Tensor,
-             encoder_out: tf.Tensor = None,
-             src_mask: tf.Tensor = None,
-             h_state: list = None) -> (tf.Tensor, tf.Tensor, tf.Tensor):
-        """
-        Performs the decoding of the encoder output
-        :param dst_tokens: the tokens of the target sentence
-        :param encoder_out: hidden states of the encoder
-        :param src_mask: attention mask for the source sentence
-        :param h_state: last hidden state of the decoder
-        :return: tensor with softmax probabilities
-        """
-        # Build the embeddings
-        emb_dst = self.emb_layer(dst_tokens)
+             enc_output: tf.Tensor,
+             mask: tf.Tensor,
+             state=None):
 
-        # Decoder step, token by token
-        _, rnn_state, rnn_c = self.decoder(emb_dst, initial_state=h_state)
-        context = self.attention(rnn_state, encoder_out, src_mask)
-        context = self.att_dropout(context)
-
-        # Concatenate decoder hidden state with attention scores
-        out = tf.concat([context, rnn_state], 1)
-
-        # Generate the token probabilities
-        out = tf.keras.activations.relu(out)
-        out = self.out_layer(out)
-        return out, rnn_state, rnn_c
+        embeddings = self.embedding(dst_tokens)
+        rnn_output, state = self.gru(embeddings, initial_state=state)
+        context_vector, attention_weights = self.attention(query=rnn_output, value=enc_output, mask=mask)
+        context_and_rnn_output = tf.concat([context_vector, rnn_output], axis=-1)
+        attention_vector = self.Wc(context_and_rnn_output)
+        logits = self.fc(attention_vector)
+        return logits, attention_weights
 
 
 class DecoderTransformer(tf.keras.layers.Layer):

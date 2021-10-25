@@ -3,6 +3,8 @@ from encoder import *
 from decoder import *
 from transformer import TransformerNMT
 from trainer import Trainer
+from translator import Translator
+from utilities import *
 
 
 if __name__ == '__main__':
@@ -32,14 +34,20 @@ if __name__ == '__main__':
 
     tr_batches = make_batches(tr_set, 128)  # create the train batches
     val_batches = make_batches(val_set, 128)  # create the validation batches
-    # encoderrnn = EncoderRNN(v_size_en, 512)
 
     # Build encoder and decoder
     encoderBert: TFBertModel = TFBertModel.from_pretrained("bert-base-uncased", trainable=False)
     encoder = EncoderTransformer(8, 512, 8, 2048, v_size_en, 10000)
     decoder = DecoderTransformer(8, 512, 8, 2048, v_size_it, 10000)
+    for en_batch, it_batch in tr_batches.take(1):
+        print(tf.ones(en_batch.shape))
+        attention_mask = 1 - tf.cast(tf.math.equal(en_batch, 0), tf.float32)
+        output_bert = encoderBert.call([en_batch, attention_mask])[0]
 
-    model = TransformerNMT(encoder, decoder, v_size_it)
-    trainer = Trainer(512, model)
-    trainer.train(10, tr_batches)
+    # model = TransformerNMT(encoderrnn, decoder, v_size_it)
+    # translator = Translator(tokenizer_en, tokenizer_it, model)
+    # translated_sentence, _ = translator("well done, see you tomorrow")
+    # print(translated_sentence)
+    # trainer = Trainer(512, model)
+    # trainer.train(10, tr_batches)
     print()

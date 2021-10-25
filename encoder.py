@@ -67,5 +67,6 @@ class EncoderBERT(tf.keras.layers.Layer):
         self.bert = bert
 
     def call(self, src_tokens: tf.Tensor, training: bool, mask: tf.Tensor) -> tf.Tensor:
+        mask = tf.ones(src_tokens.shape) - mask
         output = self.bert([src_tokens, mask], training=training)[0]  # last_hidden_state
         return output  # (batch_size, input_seq_len, layers_size)
