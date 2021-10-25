@@ -1,16 +1,17 @@
 from utilities import positional_encoding
-from attention import *
 from layerTransformer import EncoderLayer
+import tensorflow as tf
+from transformers import TFBertModel
 
 
 class EncoderRNN(tf.keras.layers.Layer):
 
-    def __init__(self, src_vocab_size: int, emb_size: int = 256, layers_size: int = 768) -> None:
+    def __init__(self, src_vocab_size: int, layers_size: int) -> None:
         super(EncoderRNN, self).__init__()
         self.layers_size = layers_size
         self.src_vocab_size = src_vocab_size
 
-        self.embedding = tf.keras.layers.Embedding(self.src_vocab_size, emb_size)
+        self.embedding = tf.keras.layers.Embedding(self.src_vocab_size, layers_size)
         self.gru = tf.keras.layers.GRU(self.layers_size, return_sequences=True, return_state=True,
                                        recurrent_initializer='glorot_uniform')
 
@@ -58,3 +59,13 @@ class EncoderTransformer(tf.keras.layers.Layer):
             x = self.enc_layers[i].call(x, training, mask)
 
         return x  # (batch_size, input_seq_len, layers_size)
+
+
+class EncoderBERT(tf.keras.layers.Layer):
+
+    def __init__(self, bert: TFBertModel) -> None:
+        self.bert = bert
+
+    def call(self, src_tokens: tf.Tensor, training: bool, mask: tf.Tensor) -> tf.Tensor:
+        output = self.bert([src_tokens, mask], training=training)[0]  # last_hidden_state
+        return output  # (batch_size, input_seq_len, layers_size)
