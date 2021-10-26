@@ -1,4 +1,6 @@
-from transformers import TFBertModel, BertTokenizer, logging
+import keras.layers
+from transformers import BertTokenizer
+import logging
 from encoder import *
 from decoder import *
 from transformer import TransformerNMT
@@ -14,7 +16,8 @@ if __name__ == '__main__':
     en_set, it_set = create_dataset_anki("dataset/ita.txt")
 
     # Create the tokenizers and get the number of tokens
-    logging.set_verbosity_error()  # suppress warnings for transformers
+    logging.getLogger("tensorflow").setLevel(logging.ERROR)  # suppress warnings for tensorflow
+    logging.getLogger("transformers").setLevel(logging.ERROR)  # suppress warnings for transformers
     tokenizer_en = BertTokenizer.from_pretrained("bert-base-uncased")
     tokenizer_it = BertTokenizer.from_pretrained("dbmdz/bert-base-italian-uncased")
     v_size_en = tokenizer_en.vocab_size
@@ -36,18 +39,17 @@ if __name__ == '__main__':
     val_batches = make_batches(val_set, 128)  # create the validation batches
 
     # Build encoder and decoder
-    encoderBert: TFBertModel = TFBertModel.from_pretrained("bert-base-uncased", trainable=False)
+    # encoderBert: TFBertModel = TFBertModel.from_pretrained("bert-base-uncased", trainable=False)
+    encoder_bert = EncoderBERT(TFBertModel.from_pretrained("bert-base-uncased"))
     encoder = EncoderTransformer(8, 512, 8, 2048, v_size_en, 10000)
     decoder = DecoderTransformer(8, 512, 8, 2048, v_size_it, 10000)
+    model = TransformerNMT(encoder_bert, decoder, v_size_it)
+    trainer = Trainer(512, model)
+    temp_input = tf.random.uniform((64, 38), dtype=tf.int64, minval=0, maxval=200)
+    temp_target = tf.random.uniform((64, 36), dtype=tf.int64, minval=0, maxval=200)
+    # trainer.train(5, tr_batches)
     for en_batch, it_batch in tr_batches.take(1):
-        print(tf.ones(en_batch.shape))
-        attention_mask = 1 - tf.cast(tf.math.equal(en_batch, 0), tf.float32)
-        output_bert = encoderBert.call([en_batch, attention_mask])[0]
-
-    # model = TransformerNMT(encoderrnn, decoder, v_size_it)
-    # translator = Translator(tokenizer_en, tokenizer_it, model)
-    # translated_sentence, _ = translator("well done, see you tomorrow")
-    # print(translated_sentence)
-    # trainer = Trainer(512, model)
-    # trainer.train(10, tr_batches)
+        out_bert = encoder_bert(en_batch, False, tf.ones(en_batch.shape))
+        out_encoder = encoder(en_batch, False, None)
+        out_transformer = model([temp_input, temp_target], True)[0]
     print()
