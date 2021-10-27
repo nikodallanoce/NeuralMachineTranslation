@@ -67,7 +67,7 @@ class DecoderLayer(tf.keras.layers.Layer):
         # enc_output.shape == (batch_size, input_seq_len, layers_size)
 
         attn1, attn_weights_block1 = self.mha1(dst_tokens, dst_tokens, dst_tokens,
-                                               look_ahead_mask,return_attention_scores=True)
+                                               look_ahead_mask, return_attention_scores=True)
         attn1 = self.dropout1(attn1, training=training)  # (batch_size, target_seq_len, layers_size)
         out1 = self.layernorm1(attn1 + dst_tokens)
 

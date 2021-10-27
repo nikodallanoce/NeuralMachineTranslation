@@ -1,6 +1,3 @@
-from encoder import *
-from decoder import *
-from transformers import TFBertModel
 from utilities import *
 
 

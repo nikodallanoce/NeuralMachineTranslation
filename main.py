@@ -1,4 +1,3 @@
-import keras.layers
 from transformers import BertTokenizer
 import logging
 from encoder import *
@@ -48,8 +47,4 @@ if __name__ == '__main__':
     temp_input = tf.random.uniform((64, 38), dtype=tf.int64, minval=0, maxval=200)
     temp_target = tf.random.uniform((64, 36), dtype=tf.int64, minval=0, maxval=200)
     # trainer.train(5, tr_batches)
-    for en_batch, it_batch in tr_batches.take(1):
-        out_bert = encoder_bert(en_batch, False, tf.ones(en_batch.shape))
-        out_encoder = encoder(en_batch, False, None)
-        out_transformer = model([temp_input, temp_target], True)[0]
     print()
