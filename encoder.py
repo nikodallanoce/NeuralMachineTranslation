@@ -1,64 +1,70 @@
-from utilities import positional_encoding
-from layerTransformer import EncoderLayer
 import tensorflow as tf
+from tensorflow.keras import layers
 from transformers import TFBertModel
+from positional_embedding import PositionalEmbedding
 
 
-class EncoderRNN(tf.keras.layers.Layer):
+class EncoderLayer(layers.Layer):
 
-    def __init__(self, src_vocab_size: int, layers_size: int) -> None:
-        super(EncoderRNN, self).__init__()
+    def __init__(self, layers_size: int, dense_size: int, num_heads: int, dropout=0.1, **kwargs) -> None:
+        super(EncoderLayer, self).__init__(**kwargs)
+
         self.layers_size = layers_size
-        self.src_vocab_size = src_vocab_size
+        self.dense_size = dense_size
+        self.num_heads = num_heads
+        self.attention = layers.MultiHeadAttention(num_heads, layers_size)
+        self.dense_proj = tf.keras.Sequential(
+            [layers.Dense(dense_size, activation="relu"), layers.Dense(layers_size)]
+        )
+        self.layernorm_1 = layers.LayerNormalization()
+        self.layernorm_2 = layers.LayerNormalization()
+        self.dropout_1 = layers.Dropout(dropout)
+        self.dropout_2 = layers.Dropout(dropout)
+        self.supports_masking = True
 
-        self.embedding = tf.keras.layers.Embedding(self.src_vocab_size, layers_size)
-        self.gru = tf.keras.layers.GRU(self.layers_size, return_sequences=True, return_state=True,
-                                       recurrent_initializer='glorot_uniform')
+    def call(self, inputs: tf.Tensor, mask=None) -> tf.Tensor:
+        if mask is not None:
+            padding_mask = tf.cast(mask[:, tf.newaxis, tf.newaxis, :], dtype="int32")
+        else:
+            print("Mask not built")
+            assert False
 
-    def call(self, src_tokens: tf.Tensor, state=None) -> (tf.Tensor, tf.Tensor):
-        # The embedding layer looks up the embedding for each token.
-        embeddings = self.embedding(src_tokens)
+        attention_output = self.attention(
+            query=inputs, value=inputs, key=inputs, attention_mask=padding_mask
+        )
+        attention_output = self.dropout_1(attention_output)
+        proj_input = self.layernorm_1(inputs + attention_output)
+        proj_output = self.dense_proj(proj_input)
+        proj_output = self.dropout_1(proj_output)
+        return self.layernorm_2(proj_input + proj_output)
 
-        # The GRU processes the embedding sequence.
-        output, state = self.gru(embeddings, initial_state=state)
-        return output, state  # output shape: (batch, input_seq_length, layers_size), state shape: (batch, layers_size)
 
+class EncoderTransformer(layers.Layer):
 
-class EncoderTransformer(tf.keras.layers.Layer):
-
-    def __init__(self, num_layers: int,
+    def __init__(self,
+                 num_layers: int,
                  layers_size: int,
+                 dense_size: int,
                  num_heads: int,
-                 dff: int,
-                 src_vocab_size: int,
-                 maximum_position_encoding: int,
+                 max_length: int,
+                 v_size_src: int,
                  dropout: float = 0.1) -> None:
         super(EncoderTransformer, self).__init__()
 
         self.layers_size = layers_size
         self.num_layers = num_layers
-
-        self.embedding = tf.keras.layers.Embedding(src_vocab_size, layers_size)
-        self.pos_encoding = positional_encoding(maximum_position_encoding, self.layers_size)
-
-        self.enc_layers = [EncoderLayer(layers_size, num_heads, dff, dropout) for _ in range(num_layers)]
-
+        self.pos_embedding = PositionalEmbedding(max_length, v_size_src, layers_size)
+        self.enc_layers = [EncoderLayer(layers_size, dense_size, num_heads) for _ in range(num_layers)]
         self.dropout = tf.keras.layers.Dropout(dropout)
+        self.supports_masking = True
 
-    def call(self, src_tokens: tf.Tensor, training: bool, mask: tf.Tensor) -> tf.Tensor:
-        seq_len = tf.shape(src_tokens)[1]
-
-        # adding embedding and position encoding.
-        x = self.embedding(src_tokens)  # (batch_size, input_seq_len, layers_size)
-        x *= tf.math.sqrt(tf.cast(self.layers_size, tf.float32))
-        x += self.pos_encoding[:, :seq_len, :]
-
-        x = self.dropout(x, training=training)
-
+    def call(self, inputs: tf.Tensor, mask=None) -> tf.Tensor:
+        src_embeddings = self.pos_embedding(inputs)
+        enc_out = self.dropout(src_embeddings)
         for i in range(self.num_layers):
-            x = self.enc_layers[i].call(x, training, mask)
+            enc_out = self.enc_layers[i](enc_out)
 
-        return x  # (batch_size, input_seq_len, layers_size)
+        return enc_out  # (batch_size, input_seq_len, layers_size)
 
 
 class EncoderBERT(tf.keras.layers.Layer):
@@ -67,7 +73,7 @@ class EncoderBERT(tf.keras.layers.Layer):
         super(EncoderBERT, self).__init__()
         self.bert = bert
 
-    def call(self, src_tokens: tf.Tensor, training: bool, mask: tf.Tensor) -> tf.Tensor:
+    def call(self, src_tokens: tf.Tensor, training: bool) -> tf.Tensor:
         mask = tf.ones(src_tokens.shape) - tf.cast(tf.math.equal(src_tokens, 0), tf.float32)
         output = self.bert([src_tokens, mask], training=training)[0]  # last_hidden_state
         return output  # (batch_size, input_seq_len, layers_size)

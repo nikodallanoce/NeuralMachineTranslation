@@ -2,9 +2,7 @@ from transformers import BertTokenizer
 import logging
 from encoder import *
 from decoder import *
-from transformer import TransformerNMT
-from trainer import Trainer
-from translator import Translator
+# from translator import Translator
 from utilities import *
 
 
@@ -42,9 +40,6 @@ if __name__ == '__main__':
     encoder_bert = EncoderBERT(TFBertModel.from_pretrained("bert-base-uncased"))
     encoder = EncoderTransformer(8, 512, 8, 2048, v_size_en, 10000)
     decoder = DecoderTransformer(8, 512, 8, 2048, v_size_it, 10000)
-    model = TransformerNMT(encoder_bert, decoder, v_size_it)
-    trainer = Trainer(512, model)
     temp_input = tf.random.uniform((64, 38), dtype=tf.int64, minval=0, maxval=200)
     temp_target = tf.random.uniform((64, 36), dtype=tf.int64, minval=0, maxval=200)
-    # trainer.train(5, tr_batches)
     print()
