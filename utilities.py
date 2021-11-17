@@ -38,6 +38,15 @@ def create_dataset_anki(name: str, preprocessed: bool = False) -> (list, list):
     return src_set, dst_set
 
 
+def set_max_tokens(dataset: list, language: str = "en") -> int:
+    len_sentences = [len(sentence.split()) for sentence in dataset]
+    mean_len_sentences = np.mean(len_sentences)
+    print("{0} dataset average sentence length: {1}".format(language, mean_len_sentences))
+    max_length = int(mean_len_sentences + 3 * np.std(len_sentences))
+    print("{0} dataset max length allowed: {1}".format(language, max_length))
+    return max_length
+
+
 def split_set(dataset: tf.data.Dataset,
               tr: float = 0.8,
               val: float = 0.1,
@@ -60,7 +69,7 @@ def split_set(dataset: tf.data.Dataset,
 
 
 def __format_dataset(eng, ita):
-    return {"encoder_inputs": eng, "decoder_inputs": ita[:, :-1],}, ita[:, 1:]
+    return {"encoder_inputs": eng, "decoder_inputs": ita[:, :-1]}, ita[:, 1:]
 
 
 def make_batches(dataset_src_dst: tf.data.Dataset, batch_size: int) -> tf.data.Dataset:

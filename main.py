@@ -2,8 +2,31 @@ from transformers import BertTokenizer
 import logging
 from encoder import *
 from decoder import *
-# from translator import Translator
+from translator import Translator
 from utilities import *
+
+
+def create_model(layers_size: int, num_layers: int, dense_size: int, num_heads: int, max_length: int, encoder=None) -> tf.keras.Model:
+    # Encoder
+    encoder_inputs = tf.keras.Input(shape=(None,), dtype="int32", name="encoder_inputs")
+    if encoder is not None:
+        outputs = encoder(encoder_inputs)
+        encoder_outputs = outputs.last_hidden_state
+        layers_size = encoder_outputs.shape[-1]  # the size of the encoder and decoder layers must be the same
+    else:
+        encoder_outputs = EncoderTransformer(num_layers, layers_size, dense_size, num_heads, max_length, v_size_en)(encoder_inputs)
+
+    # Decoder
+    decoder_inputs = tf.keras.Input(shape=(None,), dtype="int32", name="decoder_inputs")
+    encoded_seq_inputs = tf.keras.Input(shape=(None, layers_size), name="decoder_state_inputs")
+    decoder_outputs = DecoderTransformer(num_layers, layers_size, dense_size, num_heads, max_length, v_size_it)(decoder_inputs, encoded_seq_inputs)
+    decoder_outputs = layers.Dense(v_size_it, activation="softmax")(decoder_outputs)
+    decoder = tf.keras.Model([decoder_inputs, encoded_seq_inputs], decoder_outputs, name="decoder_transformer")
+
+    # Final model
+    decoder_outputs = decoder([decoder_inputs, encoder_outputs])
+    transformer = tf.keras.Model([encoder_inputs, decoder_inputs], decoder_outputs, name="transformer")
+    return transformer
 
 
 if __name__ == '__main__':
@@ -35,11 +58,10 @@ if __name__ == '__main__':
     tr_batches = make_batches(tr_set, 128)  # create the train batches
     val_batches = make_batches(val_set, 128)  # create the validation batches
 
-    # Build encoder and decoder
-    # encoderBert: TFBertModel = TFBertModel.from_pretrained("bert-base-uncased", trainable=False)
-    encoder_bert = EncoderBERT(TFBertModel.from_pretrained("bert-base-uncased"))
-    encoder = EncoderTransformer(8, 512, 8, 2048, v_size_en, 10000)
-    decoder = DecoderTransformer(8, 512, 8, 2048, v_size_it, 10000)
-    temp_input = tf.random.uniform((64, 38), dtype=tf.int64, minval=0, maxval=200)
-    temp_target = tf.random.uniform((64, 36), dtype=tf.int64, minval=0, maxval=200)
+    # Build the model
+    opt = tf.keras.optimizers.Adam(learning_rate=0.0001)
+    transformer = create_model(512, 6, 2048, 8, 30)
+    transformer.summary()
+    transformer.compile(opt, loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+    translator = Translator(tokenizer_en, tokenizer_it, 30, transformer)
     print()
