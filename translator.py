@@ -3,15 +3,16 @@ from queue import SimpleQueue
 import tensorflow as tf
 
 
-class Translator:
+class Translator(tf.Module):
 
     def __init__(self, tokenizer_src, tokenizer_dst, max_length: int, transformer: tf.keras.Model) -> None:
+        super(Translator, self).__init__()
         self.tokenizer_src = tokenizer_src
         self.tokenizer_dst = tokenizer_dst
         self.max_length = max_length
         self.transformer = transformer
 
-    def translate(self, input_sentence: str) -> (list, str):
+    def __translate(self, input_sentence: str) -> (list, str):
         tokenized_input_sentence = self.tokenizer_src(input_sentence, return_tensors='tf', add_special_tokens=True,
                                                       max_length=self.max_length, padding='max_length',
                                                       truncation=True).data["input_ids"]
@@ -34,7 +35,7 @@ class Translator:
 
         return list_tokens, decoded_sentence
 
-    def translate_beam_search(self, input_sentence: str, k=2):
+    def __translate_beam_search(self, input_sentence: str, k=2):
         tokenized_input_sentence = self.tokenizer_src(input_sentence, return_tensors='tf', add_special_tokens=True,
                                                       max_length=self.max_length, padding='max_length',
                                                       truncation=True).data["input_ids"]
@@ -65,3 +66,11 @@ class Translator:
 
         translated.sort(key=lambda x: x[1], reverse=True)
         return translated
+
+    def __call__(self, input_sentence: str, k=0):
+        if k is not 0:
+            out_translation = self.__translate(input_sentence)
+        else:
+            out_translation = self.__translate_beam_search(input_sentence, k)
+
+        return out_translation

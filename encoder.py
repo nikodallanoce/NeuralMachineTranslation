@@ -1,6 +1,5 @@
 import tensorflow as tf
 from tensorflow.keras import layers
-from transformers import TFBertModel
 from positional_embedding import PositionalEmbedding
 
 
@@ -65,15 +64,3 @@ class EncoderTransformer(layers.Layer):
             enc_out = self.enc_layers[i](enc_out)
 
         return enc_out  # (batch_size, input_seq_len, layers_size)
-
-
-class EncoderBERT(tf.keras.layers.Layer):
-
-    def __init__(self, bert: TFBertModel) -> None:
-        super(EncoderBERT, self).__init__()
-        self.bert = bert
-
-    def call(self, src_tokens: tf.Tensor, training: bool) -> tf.Tensor:
-        mask = tf.ones(src_tokens.shape) - tf.cast(tf.math.equal(src_tokens, 0), tf.float32)
-        output = self.bert([src_tokens, mask], training=training)[0]  # last_hidden_state
-        return output  # (batch_size, input_seq_len, layers_size)
