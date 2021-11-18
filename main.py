@@ -1,4 +1,5 @@
 from transformer import *
+# from tqdm import tqdm
 import logging
 from translator import Translator
 from utilities import *
@@ -8,7 +9,8 @@ if __name__ == '__main__':
     # dataset_en = create_patterns("dataset/europarl-v7.it-en.en")
     # dataset_it = create_patterns("dataset/europarl-v7.it-en.it")
 
-    en_set, it_set = create_dataset_anki("dataset/ita.txt")
+    # en_set, it_set = create_dataset_anki("dataset/ita.txt")
+    en_set, it_set = create_dataset_euparl("dataset/europarl-v7.it-en")
 
     # Create the tokenizers and get the number of tokens
     logging.getLogger("tensorflow").setLevel(logging.ERROR)  # suppress warnings for tensorflow
@@ -16,7 +18,7 @@ if __name__ == '__main__':
 
     encoder_model = encoder_models["bert"]
     tokenizer_en = encoder_model["tokenizer"]
-    tokenizer_it = BertTokenizer.from_pretrained("dbmdz/bert-base-italian-uncased")
+    tokenizer_it = BertTokenizerFast.from_pretrained("dbmdz/bert-base-italian-cased")
     v_size_en = tokenizer_en.vocab_size
     v_size_it = tokenizer_it.vocab_size
 
@@ -24,14 +26,14 @@ if __name__ == '__main__':
     strategy = choose_strategy()
 
     # Tokenize the dataset
-    max_length = np.max([set_max_tokens(en_set, "en"), set_max_tokens(it_set, "it")]) * 2
+    max_length = np.max([set_max_tokens(en_set, "en"), set_max_tokens(it_set, "it")])
     with strategy.scope():
-        tokens_en = tokenizer_en(en_set[:50000], add_special_tokens=True,
+        tokens_en = tokenizer_en(en_set, add_special_tokens=True,
                                  truncation=True, padding="max_length", return_attention_mask=True,
                                  return_tensors="tf", max_length=max_length).data["input_ids"]
-        tokens_it = tokenizer_it(it_set[:50000], add_special_tokens=True,
+        tokens_it = tokenizer_it(it_set, add_special_tokens=True,
                                  truncation=True, padding="max_length", return_attention_mask=True,
-                                 return_tensors="tf", max_length=max_length).data["input_ids"]
+                                 return_tensors="tf", max_length=max_length+1).data["input_ids"]
 
     # Build the dataset and split it in train, validation and test
     dataset = tf.data.Dataset.from_tensor_slices((tokens_en, tokens_it))  # build the tf dataset

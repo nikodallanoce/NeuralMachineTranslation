@@ -2,7 +2,6 @@ import tensorflow as tf
 from tensorflow.keras import layers
 from encoder import EncoderTransformer
 from decoder import DecoderTransformer
-# import sentencepiece
 from transformers import BertTokenizer, BertTokenizerFast, TFBertModel,\
     T5TokenizerFast, T5Tokenizer, TFT5EncoderModel,\
     DistilBertTokenizer, DistilBertTokenizerFast, TFDistilBertModel,\

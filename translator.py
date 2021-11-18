@@ -68,7 +68,7 @@ class Translator(tf.Module):
         return translated
 
     def __call__(self, input_sentence: str, k=0):
-        if k is not 0:
+        if k != 0:
             out_translation = self.__translate(input_sentence)
         else:
             out_translation = self.__translate_beam_search(input_sentence, k)

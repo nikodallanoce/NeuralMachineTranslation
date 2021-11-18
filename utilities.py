@@ -2,25 +2,14 @@ import tensorflow as tf
 import numpy as np
 
 
-def create_patterns(name: str):
-    with open(name, encoding='UTF-8') as datafile:
-        sentences = datafile.readlines()
+def create_dataset_euparl(name: str, src: str = "en", dst: str = "it") -> (list, list):
+    with open(name+".{0}".format(src), encoding="UTF-8") as datafile:
+        src_set = datafile.readlines()
 
-    return sentences
+    with open(name+".{0}".format(dst), encoding="UTF-8") as datafile:
+        dst_set = datafile.readlines()
 
-
-def create_dataset_europarl(eng_ita=True):
-    src, dst = 'en', 'it'
-    if not eng_ita:
-        src, dst = 'it', 'en'
-
-    x = create_patterns('dataset/europarl-v7.it-en.{0}'.format(src))
-    y = create_patterns('dataset/europarl-v7.it-en.{0}'.format(dst))
-    ds = []
-    for (xi, yi) in zip(x, y):
-        ds.append((xi, yi))
-
-    return ds
+    return src_set, dst_set
 
 
 def create_dataset_anki(name: str, preprocessed: bool = False) -> (list, list):
@@ -42,7 +31,7 @@ def set_max_tokens(dataset: list, language: str = "en") -> int:
     len_sentences = [len(sentence.split()) for sentence in dataset]
     mean_len_sentences = np.mean(len_sentences)
     print("{0} dataset average sentence length: {1}".format(language, mean_len_sentences))
-    max_length = int(mean_len_sentences + 3 * np.std(len_sentences))
+    max_length = int(mean_len_sentences + 2 * np.std(len_sentences))
     print("{0} dataset max length allowed: {1}".format(language, max_length))
     return max_length
 
