@@ -2,12 +2,19 @@ import tensorflow as tf
 import numpy as np
 
 
-def create_dataset_euparl(name: str, src: str = "en", dst: str = "it") -> (list, list):
+def create_dataset_euparl(name: str, src: str = "en", dst: str = "it", size: float = 1) -> (list, list):
     with open(name+".{0}".format(src), encoding="UTF-8") as datafile:
         src_set = datafile.readlines()
 
     with open(name+".{0}".format(dst), encoding="UTF-8") as datafile:
         dst_set = datafile.readlines()
+
+    if size != 1:
+        datasets_to_shuffle = list((zip(src_set, dst_set)))
+        np.random.shuffle(datasets_to_shuffle)
+        src_set, dst_set = zip(*datasets_to_shuffle)
+        src_set = list(src_set[:int(len(src_set) * size)])
+        dst_set = list(dst_set[:int(len(dst_set) * size)])
 
     return src_set, dst_set
 
@@ -27,12 +34,14 @@ def create_dataset_anki(name: str, preprocessed: bool = False) -> (list, list):
     return src_set, dst_set
 
 
-def set_max_tokens(dataset: list, language: str = "en") -> int:
+def set_max_tokens(dataset: list, language: str = "en", show_out: bool = False) -> int:
     len_sentences = [len(sentence.split()) for sentence in dataset]
     mean_len_sentences = np.mean(len_sentences)
-    print("{0} dataset average sentence length: {1}".format(language, mean_len_sentences))
     max_length = int(mean_len_sentences + 2 * np.std(len_sentences))
-    print("{0} dataset max length allowed: {1}".format(language, max_length))
+    if show_out:
+        print("{0} dataset average sentence length: {1}".format(language, mean_len_sentences))
+        print("{0} dataset max length allowed: {1}".format(language, max_length))
+
     return max_length
 
 
