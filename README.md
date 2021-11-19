@@ -13,6 +13,7 @@ Europarl Corpus or http://www.manythings.org/anki/
 ### Tokenizers:
 - https://huggingface.co/bert-base-uncased
 - https://huggingface.co/dbmdz/bert-base-italian-cased
+- https://huggingface.co/albert-base-v2
+- https://huggingface.co/distilbert-base-uncased
 - https://huggingface.co/t5-base
-- https://huggingface.co/distilbert-base-cased
 - https://huggingface.co/xlnet-base-cased
