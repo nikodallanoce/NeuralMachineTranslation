@@ -85,9 +85,9 @@ encoder_models = {
         "tokenizer_translation": DistilBertTokenizer.from_pretrained("distilbert-base-uncased"),
     },
     "albert": {
-        "tokenizer": AlbertTokenizerFast.from_pretrained("distilbert-base-uncased"),
+        "tokenizer": AlbertTokenizerFast.from_pretrained("albert-base-v2"),
         "encoder": create_encoder_albert,
-        "tokenizer_translation": AlbertTokenizer.from_pretrained("distilbert-base-uncased"),
+        "tokenizer_translation": AlbertTokenizer.from_pretrained("albert-base-v2"),
     },
     "xlnet": {
         "tokenizer": XLNetTokenizerFast.from_pretrained("xlnet-base-cased"),
