@@ -1,5 +1,4 @@
 from transformer import *
-# from tqdm import tqdm
 import logging
 from translator import Translator
 from utilities import *

@@ -5,7 +5,8 @@ from decoder import DecoderTransformer
 from transformers import BertTokenizer, BertTokenizerFast, TFBertModel,\
     T5TokenizerFast, T5Tokenizer, TFT5EncoderModel,\
     DistilBertTokenizer, DistilBertTokenizerFast, TFDistilBertModel,\
-    XLNetTokenizerFast, XLNetTokenizer, TFXLNetModel
+    XLNetTokenizerFast, XLNetTokenizer, TFXLNetModel,\
+    AlbertTokenizer, AlbertTokenizerFast, TFAlbertModel
 
 
 def choose_strategy():
@@ -39,7 +40,7 @@ def choose_strategy():
 
 def create_encoder_bert(strategy):
     with strategy.scope():
-        bert_model = TFBertModel.from_pretrained("bert-base-cased")
+        bert_model = TFBertModel.from_pretrained("bert-base-uncased")
     return bert_model
 
 
@@ -51,8 +52,14 @@ def create_encoder_t5(strategy):
 
 def create_encoder_distilbert(strategy):
     with strategy.scope():
-        distilbert_model = TFDistilBertModel.from_pretrained("distilbert-base-cased"),
+        distilbert_model = TFDistilBertModel.from_pretrained("distilbert-base-uncased"),
     return distilbert_model
+
+
+def create_encoder_albert(strategy):
+    with strategy.scope():
+        albert_model = TFAlbertModel.from_pretrained("albert-base-v2"),
+    return albert_model
 
 
 def create_encoder_xlnet(strategy):
@@ -63,9 +70,9 @@ def create_encoder_xlnet(strategy):
 
 encoder_models = {
     "bert": {
-        "tokenizer": BertTokenizerFast.from_pretrained("bert-base-cased"),
+        "tokenizer": BertTokenizerFast.from_pretrained("bert-base-uncased"),
         "encoder": create_encoder_bert,
-        "tokenizer_translation": BertTokenizer.from_pretrained("bert-base-cased"),
+        "tokenizer_translation": BertTokenizer.from_pretrained("bert-base-uncased"),
     },
     "t5": {
         "tokenizer": T5TokenizerFast.from_pretrained("t5-base"),
@@ -73,9 +80,14 @@ encoder_models = {
         "tokenizer_translation": T5Tokenizer.from_pretrained("t5-base"),
     },
     "distil_bert": {
-        "tokenizer": DistilBertTokenizerFast.from_pretrained("distilbert-base-cased"),
+        "tokenizer": DistilBertTokenizerFast.from_pretrained("distilbert-base-uncased"),
         "encoder": create_encoder_distilbert,
-        "tokenizer_translation": DistilBertTokenizer.from_pretrained("distilbert-base-cased"),
+        "tokenizer_translation": DistilBertTokenizer.from_pretrained("distilbert-base-uncased"),
+    },
+    "albert": {
+        "tokenizer": AlbertTokenizerFast.from_pretrained("distilbert-base-uncased"),
+        "encoder": create_encoder_albert,
+        "tokenizer_translation": AlbertTokenizer.from_pretrained("distilbert-base-uncased"),
     },
     "xlnet": {
         "tokenizer": XLNetTokenizerFast.from_pretrained("xlnet-base-cased"),
