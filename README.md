@@ -10,6 +10,9 @@ Europarl Corpus or the english-italian dataset from http://www.manythings.org/an
 - https://www.tensorflow.org/text/tutorials/transformer
 - https://keras.io/examples/nlp/neural_machine_translation_with_transformer/
 
+### Benchmark:
+- https://github.com/facebookresearch/flores/blob/main/README.md
+
 ### Tokenizers:
 - https://huggingface.co/bert-base-uncased
 - https://huggingface.co/dbmdz/bert-base-italian-cased
