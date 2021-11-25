@@ -18,6 +18,6 @@ We use https://huggingface.co/dbmdz/bert-base-italian-cased as the italian token
 ### Masked language encoders:
 - https://huggingface.co/bert-base-uncased
 - https://huggingface.co/distilbert-base-uncased
-### Neural mahcine translation encoders:
+### Neural machine translation encoders:
 - https://huggingface.co/t5-small
 - https://huggingface.co/xlnet-base-cased
