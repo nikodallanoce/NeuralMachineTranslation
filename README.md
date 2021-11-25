@@ -5,18 +5,19 @@ English-Italian
 
 Europarl Corpus or the english-italian dataset from http://www.manythings.org/anki/
 
-### Sources used:
+## Sources used
 - https://www.tensorflow.org/addons/tutorials/networks_seq2seq_nmt
 - https://www.tensorflow.org/text/tutorials/transformer
 - https://keras.io/examples/nlp/neural_machine_translation_with_transformer/
 
-### Benchmark:
+## Benchmark
 - https://github.com/facebookresearch/flores/blob/main/README.md
 
-### Tokenizers:
+## Tokenizers and models
+We use https://huggingface.co/dbmdz/bert-base-italian-cased as the italian tokenizer for each of our models, for the source language we must use the correct tokenizer for each encoder we used.
+### Masked language encoders:
 - https://huggingface.co/bert-base-uncased
-- https://huggingface.co/dbmdz/bert-base-italian-cased
-- https://huggingface.co/albert-base-v2
 - https://huggingface.co/distilbert-base-uncased
-- https://huggingface.co/t5-base
+### Neural mahcine translation encoders:
+- https://huggingface.co/t5-small
 - https://huggingface.co/xlnet-base-cased
