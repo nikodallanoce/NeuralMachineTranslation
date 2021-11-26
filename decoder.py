@@ -11,10 +11,10 @@ class DecoderLayer(layers.Layer):
         self.layers_size = layers_size
         self.dense_size = dense_size
         self.num_heads = num_heads
-        self.attention_1 = layers.MultiHeadAttention(num_heads, layers_size)
-        self.attention_2 = layers.MultiHeadAttention(num_heads, layers_size)
+        self.attention_1 = layers.MultiHeadAttention(num_heads, layers_size, dropout=dropout)
+        self.attention_2 = layers.MultiHeadAttention(num_heads, layers_size, dropout=dropout)
         self.dense_proj = tf.keras.Sequential(
-            [layers.Dense(dense_size, activation="relu"), layers.Dense(layers_size)]
+            [layers.Dense(dense_size, activation="elu"), layers.Dropout(dropout), layers.Dense(layers_size)]
         )
         self.layernorm_1 = layers.LayerNormalization()
         self.layernorm_2 = layers.LayerNormalization()
@@ -35,7 +35,6 @@ class DecoderLayer(layers.Layer):
         attention_output_1 = self.attention_1(
             query=inputs, value=inputs, key=inputs, attention_mask=causal_mask
         )
-        attention_output_1 = self.dropout_1(attention_output_1)
         out_1 = self.layernorm_1(inputs + attention_output_1)
 
         attention_output_2 = self.attention_2(
@@ -44,11 +43,9 @@ class DecoderLayer(layers.Layer):
             key=encoder_outputs,
             attention_mask=padding_mask,
         )
-        attention_output_2 = self.dropout_2(attention_output_2)
         out_2 = self.layernorm_2(out_1 + attention_output_2)
 
         proj_output = self.dense_proj(out_2)
-        proj_output = self.dropout_3(proj_output)
         return self.layernorm_3(out_2 + proj_output)
 
     def get_causal_attention_mask(self, inputs):

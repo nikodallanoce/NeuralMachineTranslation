@@ -11,14 +11,12 @@ class EncoderLayer(layers.Layer):
         self.layers_size = layers_size
         self.dense_size = dense_size
         self.num_heads = num_heads
-        self.attention = layers.MultiHeadAttention(num_heads, layers_size)
+        self.attention = layers.MultiHeadAttention(num_heads, layers_size, dropout=dropout)
         self.dense_proj = tf.keras.Sequential(
-            [layers.Dense(dense_size, activation="relu"), layers.Dense(layers_size)]
+            [layers.Dense(dense_size, activation="elu"), layers.Dropout(dropout), layers.Dense(layers_size)]
         )
         self.layernorm_1 = layers.LayerNormalization()
         self.layernorm_2 = layers.LayerNormalization()
-        self.dropout_1 = layers.Dropout(dropout)
-        self.dropout_2 = layers.Dropout(dropout)
         self.supports_masking = True
 
     def call(self, inputs: tf.Tensor, mask=None) -> tf.Tensor:
@@ -31,10 +29,8 @@ class EncoderLayer(layers.Layer):
         attention_output = self.attention(
             query=inputs, value=inputs, key=inputs, attention_mask=padding_mask
         )
-        attention_output = self.dropout_1(attention_output)
         proj_input = self.layernorm_1(inputs + attention_output)
         proj_output = self.dense_proj(proj_input)
-        proj_output = self.dropout_1(proj_output)
         return self.layernorm_2(proj_input + proj_output)
 
 

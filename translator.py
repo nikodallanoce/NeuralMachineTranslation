@@ -12,7 +12,7 @@ class Translator(tf.Module):
         self.max_length = max_length
         self.transformer = transformer
 
-    def __translate(self, input_sentence: str) -> (list, str):
+    def translate(self, input_sentence: str) -> (list, str):
         tokenized_input_sentence = self.tokenizer_src(input_sentence, return_tensors='tf', add_special_tokens=True,
                                                       max_length=self.max_length, padding='max_length',
                                                       truncation=True).data["input_ids"]
@@ -35,7 +35,7 @@ class Translator(tf.Module):
 
         return list_tokens, decoded_sentence
 
-    def __translate_beam_search(self, input_sentence: str, k=2):
+    def translate_beam_search(self, input_sentence: str, k=2):
         tokenized_input_sentence = self.tokenizer_src(input_sentence, return_tensors='tf', add_special_tokens=True,
                                                       max_length=self.max_length, padding='max_length',
                                                       truncation=True).data["input_ids"]
@@ -66,11 +66,3 @@ class Translator(tf.Module):
 
         translated.sort(key=lambda x: x[1], reverse=True)
         return translated
-
-    def __call__(self, input_sentence: str, k=0):
-        if k != 0:
-            out_translation = self.__translate(input_sentence)
-        else:
-            out_translation = self.__translate_beam_search(input_sentence, k)
-
-        return out_translation

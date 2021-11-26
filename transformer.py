@@ -50,18 +50,6 @@ def create_encoder_t5(strategy):
     return t5_model
 
 
-def create_encoder_distilbert(strategy):
-    with strategy.scope():
-        distilbert_model = TFDistilBertModel.from_pretrained("distilbert-base-uncased"),
-    return distilbert_model
-
-
-def create_encoder_albert(strategy):
-    with strategy.scope():
-        albert_model = TFAlbertModel.from_pretrained("albert-base-v2"),
-    return albert_model
-
-
 def create_encoder_xlnet(strategy):
     with strategy.scope():
         xlnet_model = TFXLNetModel.from_pretrained("xlnet-base-cased"),
@@ -78,16 +66,6 @@ encoder_models = {
         "tokenizer": T5TokenizerFast.from_pretrained("t5-base"),
         "encoder": create_encoder_t5,
         "tokenizer_translation": T5Tokenizer.from_pretrained("t5-base"),
-    },
-    "distil_bert": {
-        "tokenizer": DistilBertTokenizerFast.from_pretrained("distilbert-base-uncased"),
-        "encoder": create_encoder_distilbert,
-        "tokenizer_translation": DistilBertTokenizer.from_pretrained("distilbert-base-uncased"),
-    },
-    "albert": {
-        "tokenizer": AlbertTokenizerFast.from_pretrained("albert-base-v2"),
-        "encoder": create_encoder_albert,
-        "tokenizer_translation": AlbertTokenizer.from_pretrained("albert-base-v2"),
     },
     "xlnet": {
         "tokenizer": XLNetTokenizerFast.from_pretrained("xlnet-base-cased"),
