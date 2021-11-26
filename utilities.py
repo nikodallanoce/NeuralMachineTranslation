@@ -10,6 +10,9 @@ def create_dataset_euparl(name: str, src: str = "en", dst: str = "it", size: flo
         dst_set = datafile.readlines()
 
     if size != 1:
+        if size > 1 or size < 0:
+            raise ValueError("No such size is possible for the euparl corpus")
+
         datasets_to_shuffle = list((zip(src_set, dst_set)))
         np.random.shuffle(datasets_to_shuffle)
         src_set, dst_set = zip(*datasets_to_shuffle)

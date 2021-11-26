@@ -12,7 +12,7 @@ class Translator(tf.Module):
         self.max_length = max_length
         self.transformer = transformer
 
-    def translate(self, input_sentence: str) -> (list, str):
+    def translate(self, input_sentence: str, k: int = 1) -> (list, str):
         tokenized_input_sentence = self.tokenizer_src(input_sentence, return_tensors='tf', add_special_tokens=True,
                                                       max_length=self.max_length, padding='max_length',
                                                       truncation=True).data["input_ids"]
@@ -24,9 +24,12 @@ class Translator(tf.Module):
                                                         max_length=self.max_length,
                                                         padding='max_length', truncation=True).data['input_ids']
             predictions = self.transformer([tokenized_input_sentence, tokenized_dst_sentence])
-            sampled_token_index = np.argmax(predictions[0, i, :])
-            sampled_token = self.tokenizer_dst.ids_to_tokens[sampled_token_index]
-
+            sampled_token_indexes = np.argsort(predictions[0, i, :])[-k:]
+            p = [float(predictions[0, i, j]) for j in sampled_token_indexes]
+            p = np.array(p)
+            p /= np.sum(p)
+            sampled_token_index = np.random.choice(sampled_token_indexes, 1, p=p)
+            sampled_token = self.tokenizer_dst.ids_to_tokens[sampled_token_index[0]]
             if sampled_token == "[SEP]":
                 decoded_sentence = self.tokenizer_dst.convert_tokens_to_string(list_tokens[1:])
                 break

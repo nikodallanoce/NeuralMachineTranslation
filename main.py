@@ -9,7 +9,7 @@ if __name__ == '__main__':
     # dataset_it = create_patterns("dataset/europarl-v7.it-en.it")
 
     # en_set, it_set = create_dataset_anki("dataset/ita.txt")
-    en_set, it_set = create_dataset_euparl("dataset/europarl-v7.it-en", size=0.5)
+    en_set, it_set = create_dataset_euparl("dataset/europarl-v7.it-en", size=0.2)
 
     # Create the tokenizers and get the number of tokens
     logging.getLogger("tensorflow").setLevel(logging.ERROR)  # suppress warnings for tensorflow

@@ -4,9 +4,7 @@ from encoder import EncoderTransformer
 from decoder import DecoderTransformer
 from transformers import BertTokenizer, BertTokenizerFast, TFBertModel,\
     T5TokenizerFast, T5Tokenizer, TFT5EncoderModel,\
-    DistilBertTokenizer, DistilBertTokenizerFast, TFDistilBertModel,\
-    XLNetTokenizerFast, XLNetTokenizer, TFXLNetModel,\
-    AlbertTokenizer, AlbertTokenizerFast, TFAlbertModel
+    XLNetTokenizerFast, XLNetTokenizer, TFXLNetModel
 
 
 def choose_strategy():
