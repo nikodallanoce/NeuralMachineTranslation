@@ -34,6 +34,14 @@ def create_dataset_anki(name: str, preprocessed: bool = False) -> (list, list):
     return src_set, dst_set
 
 
+def merge_datasets(first_dataset, second_dataset) -> (list, list):
+    first_src, first_dst = first_dataset
+    second_src, second_dst = second_dataset
+    src_set = first_src + second_src
+    dst_set = first_dst + second_dst
+    return src_set, dst_set
+
+
 def set_max_tokens(dataset: list, language: str = "en", show_out: bool = False) -> int:
     len_sentences = [len(sentence.split()) for sentence in dataset]
     mean_len_sentences = np.mean(len_sentences)

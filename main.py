@@ -68,6 +68,6 @@ if __name__ == '__main__':
 
     # Work with the translator
     en = "My house has several bedrooms."
-    tokens, translated = translator(en)
+    tokens, translated = translator.translate(en)
     print([en, translated])
     print()
