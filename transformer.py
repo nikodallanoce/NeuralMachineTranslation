@@ -3,6 +3,7 @@ from tensorflow.keras import layers
 from encoder import EncoderTransformer
 from decoder import DecoderTransformer
 from transformers import BertTokenizer, BertTokenizerFast, TFBertModel,\
+    DistilBertTokenizer, DistilBertTokenizerFast, TFDistilBertModel, \
     T5TokenizerFast, T5Tokenizer, TFT5EncoderModel,\
     XLNetTokenizerFast, XLNetTokenizer, TFXLNetModel
 
@@ -42,6 +43,12 @@ def create_encoder_bert(strategy):
     return bert_model
 
 
+def create_encoder_distilbert(strategy):
+    with strategy.scope():
+        distilbert_model = TFDistilBertModel.from_pretrained("distilbert-base-cased")
+    return distilbert_model
+
+
 def create_encoder_t5(strategy):
     with strategy.scope():
         t5_model = TFT5EncoderModel.from_pretrained("t5-base"),
@@ -59,6 +66,11 @@ encoder_models = {
         "tokenizer": BertTokenizerFast.from_pretrained("bert-base-uncased"),
         "encoder": create_encoder_bert,
         "tokenizer_translation": BertTokenizer.from_pretrained("bert-base-uncased"),
+    },
+    "distilbert": {
+        "tokenizer": DistilBertTokenizerFast.from_pretrained("distilbert-base-cased"),
+        "encoder": create_encoder_distilbert,
+        "tokenizer_translation": DistilBertTokenizer.from_pretrained("distilbert-base-cased"),
     },
     "t5": {
         "tokenizer": T5TokenizerFast.from_pretrained("t5-base"),
