@@ -1,1 +1,47 @@
-\section{Project Task}\label{sec:project_task}
+\section{Task Workflow}\label{sec:task_workflow}
+Our task, and the main requisite of the project, was building a NMT model based on the transformer architecture, moreover we had to insert BERT into our model as an encoder to test its performances.
+\subsection{Tokenization}\label{subsec:tokenization}
+As first step into oure task, we had to tokenize the datasets seen in section \ref{sec:dataset}, we opted for the BertTokenizer from huggingface.com instead of building one of our own, since it would have been essential for working with BERT later on the project. After loading the tokenizers, one for each language, we proceed with the tokenization of the entire dataset.
+\begin{minted}{python}
+en_set, it_set = create_dataset_anki("dataset/ita.txt")
+
+# Load the tokenizers and get the number of tokens
+tokenizer_en = BertTokenizer.from_pretrained("bert-base-uncased")
+tokenizer_it = BertTokenizer.from_pretrained("dbmdz/"
+                                             "bert-base-italian-uncased")
+v_size_en = tokenizer_en.vocab_size
+v_size_it = tokenizer_it.vocab_size
+
+# Tokenize the dataset
+tokens_en = tokenizer_en(en_set, add_special_tokens=True,
+                         truncation=True, padding="max_length", 
+                         return_attention_mask=True, return_tensors="tf",
+                         max_length=30).data["input_ids"]
+tokens_it = tokenizer_it(it_set, add_special_tokens=True,
+                         truncation=True, padding="max_length", 
+                         return_attention_mask=True, return_tensors="tf",
+                         max_length=30).data["input_ids"]
+\end{minted}
+
+By looking at the previous code snippet we have to explain how and what the BERT tokenizer returns from such method.
+Beside the input tokens we also got 2 special tokens ‘[CLS]’ and ‘[SEP]’, BERT is designed in such a way that the sentence has to start with the [CLS] token and end with the [SEP] token to separate sentence from sentence. The padding is set to a defined max\_length value which, as its name suggests, specifies the maximum length for all the pattern (so we they only one dimension, useful for training and inference) and it's calculated such that the 95\% of the sentences are fully tokenized.
+\vspace{3mm}
+
+The tokenizer returns a tuple containing three tensors, from which we only retrieve the first:
+\begin{itemize}
+    \item \textbf{input\_ids}\\
+    The tokens tensors, which will be used to build our tensorflow dataset.
+    \item \textbf{attention\_mask}\\
+    As the name says is the mask passed to the attention layer that tells in which positions the layer must attend, is filled with ones where the tokens aren't zero and zeros in any other case.
+    \item \textbf{token\_type\_ids}\\
+    The final tensor is the one that many tokenizers or transformers don't use (such as distillBERT), it 
+\end{itemize}
+%For our purpose we opted to think about encoder and decoder as blocks (more specifically as keras.layers.Layer subclasses) which can be of different types. As an example the encoder can be chosen beetween the following (the decoder implements only the first two, since we can't use BERT for that purpose):
+%\begin{itemize}
+%    \item \textbf{RNN}\\
+%    A simple encoder with a bidirectional GRU layer inside.
+%    \item \textbf{Transformer}\\
+%    The strucute is shown in \ref{fig:transformer}, the user can decide the number of layers and attention-head while setting up the layer.
+%    \item \textbf{BERT}\\
+%    This encoder layer wraps a BERT model from huggingface.com and builds all the mandatory things for its work.
+%\end{itemize}
