@@ -23,4 +23,3 @@ We use https://huggingface.co/dbmdz/bert-base-italian-cased as the italian token
 - https://huggingface.co/distilbert-base-cased
 ### Neural machine translation encoders:
 - https://huggingface.co/google/t5-v1_1-small
-- https://huggingface.co/xlnet-base-cased
