@@ -18,9 +18,8 @@ The baselines for confronting the results of our models were chosen from:
 - DeltaLM, https://arxiv.org/pdf/2106.13736.pdf
 
 ## Tokenizers and models
-We use https://huggingface.co/dbmdz/bert-base-italian-cased as the italian tokenizer for each of our models, for the source language we must use the correct tokenizer for each encoder we used.
+We used https://huggingface.co/dbmdz/bert-base-italian-cased as the italian tokenizer for each of our models, for the source language we used the correct tokenizer for each encoder.
 ### Masked language encoders:
 - https://huggingface.co/distilbert-base-cased
 ### Neural machine translation encoders:
 - https://huggingface.co/google/t5-v1_1-small
-- https://huggingface.co/xlnet-base-cased

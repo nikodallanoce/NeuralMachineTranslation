@@ -1,7 +1,7 @@
-\section{Datasets}\label{sec:dataset}
-Before showing our task and results, we thought it was necessary to explain where we found our datasets and how we preprocessed them. Unlike many of our colleagues that retrieved their datasets from various challenges on kaggle.com we followed the professor suggestion and downloaded the europarliament en-it corpus, however we've found ourselves overwhelmed since the dataset was so huge, and filled with extremely long sentences, that we opted for a second dataset for a first analysis of our model architecture and behaviour, that's why we used the en-it anki corpus which contains way less records than the first corpus but enough to build a simple NMT model.
+\section{Datasets and benchmark}\label{sec:dataset}
+Before talking about the workflow and the results, we thought that it was necessary to explain datasets we used and how we preprocessed them. At the beginning we first tried to use  europarl en-it corpus, however we've found ourselves overwhelmed by the dataset's huge size, morevore it was filled with extremely long sentences. The training phase of our model was extremely time-consuming, even on Colab TPUs. As a consequence, we tried using only an half of the original dataset but the model did not translate well. To overcome to those difficulties,  we decided to adopt a second dataset, the en-it anki corpus which contains way less records than the first one (with more sentences used in a normal conversation), but enough to build a simple and well behaved NMT model.
 \subsection{ANKI en-it dataset}
-The anki corpus we chose to work on was the english-italian which contained 350360 records at the time of our download and then we preprocessed and divided it in our development (training and validation) and test sets.
+The anki corpus\cite{anki_dataset} we chose to work on was the english-italian one which contained 352040 records at the time of our download and then we preprocessed and divided it in our development (training and validation) and test sets.
 \subsubsection{Preprocessing the anki corpus}
 The corpus was, luckily, without any issue, we just had to take away the copyrights from each single sentence pair, which was done by a simple python method. Moreover we had two versions of the corpus, one with no copyright and one without, the method takes care of this case too.
 \begin{minted}{python}
@@ -22,4 +22,49 @@ def create_dataset_anki(name: str, preprocessed: bool = False):
 The method returns two lists, one for the english sentences and one for the italian ones, we then tokenized both the lists and we proceeded with the creation of our training, validation and test sets with the (0.8, 0.1, 0.1) split.
 At this point the training set is divided in batches and is ready to be fed to the model.
 \subsection{EuroParl en-it dataset}
+Since the anki dataset consists of very simple sentences, we thought that it would be better for our model to include some records from the europarl dataset.
 \subsubsection{Preprocessing the europarl corpus}
+As for the anki dataset, luckily for us the europarl corpus was already largely preprocessed, the main issue was the huge size which it meant that the dataset couldn't fit inside the allocated memory on colab, that's why we decided to take only a fifth of the initial corpus (381823 records).
+\begin{minted}{python}
+def create_dataset_euparl(name: str, src: str = "en", dst: str = "it",
+                        size: float = 1) -> (list, list):
+    with open(name+".{0}".format(src), encoding="UTF-8") as datafile:
+        src_set = datafile.readlines()
+
+    with open(name+".{0}".format(dst), encoding="UTF-8") as datafile:
+        dst_set = datafile.readlines()
+
+    if size != 1:
+        if size > 1 or size < 0:
+            raise ValueError("No correct size for the euparl corpus")
+        
+        datasets_to_shuffle = list((zip(src_set, dst_set)))
+        np.random.shuffle(datasets_to_shuffle)
+        src_set, dst_set = zip(*datasets_to_shuffle)
+        src_set = list(src_set[:int(len(src_set) * size)])
+        dst_set = list(dst_set[:int(len(dst_set) * size)])
+        
+    return src_set, dst_set
+\end{minted}
+\subsection{Merging the datasets}
+We merged the two datasets in hope to have a better performance on our models, so we have 733863 records to be splitted into training, validation and test sets.
+\begin{minted}{python}
+def merge_datasets(first_dataset, second_dataset) -> (list, list):
+    first_src, first_dst = first_dataset
+    second_src, second_dst = second_dataset
+    src_set = first_src + second_src
+    dst_set = first_dst + second_dst
+    return src_set, dst_set
+\end{minted}
+The split was (0.8, 0.1, 0.1) resulting in the following size for our sets:
+\begin{itemize}
+    \item Training set size: 587090.
+    \item Validation set size: 73386.
+    \item Test set size: 73387.
+\end{itemize}
+The sets are then splitted into batches to improve the training done by the keras fit method.
+\subsection{Benchmark}
+We found a recently developed benchmark based on sacrebleu for our project which is the flores dataset\cite{goyal2021flores} by Facebook and it's useful for those languages with not so many resources (italian doesn't have many evaluation datasets around) and for assessing not so huge models, which is perfect for our case.
+\vspace{3mm}
+
+The benchmark comes with a test set composed by 1012 sentences taken from the english wikipedia and translated by humans, so each of our models were evaluated on how they performed on that set.
