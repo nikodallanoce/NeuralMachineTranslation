@@ -4,12 +4,16 @@
 \usepackage{natbib}
 \usepackage{graphicx}
 \usepackage{color}
-\usepackage{subfig}
 \usepackage{float}
 \usepackage{hyperref}
 \usepackage{url}
 \usepackage{listings}
-%\usepackage{pythontex}
+\usepackage{amsthm}
+\usepackage{comment}
+\usepackage{subfigure}
+\usepackage{chngcntr}
+\counterwithin{figure}{subsection}
+%\counterwithin{subfigure}{section}
 \definecolor{bg}{gray}{0.95}
 \usepackage{minted}
 
@@ -23,8 +27,9 @@
 
 \renewcommand\refname{} %remove this line to automatically show the bibliography header
 
-\begin{document}
 
+
+\begin{document}
 \nocite{*}  % comment this line to list only the articles you really cite
 \date{}
 \maketitle
@@ -39,10 +44,12 @@ The report starts with a long, but needed introduction to the main concepts that
 \tableofcontents
 \newpage
 \listoffigures
+\theoremstyle{definition}
+\newtheorem{exmp}{Example}[section]
 \include{chapters/introduction}
 \include{chapters/datasets}
-%\include{chapters/task}
 \include{chapters/workflow}
+\include{chapters/results}
 \include{chapters/references}
 
 \end{document}

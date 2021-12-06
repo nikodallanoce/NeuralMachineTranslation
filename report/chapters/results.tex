@@ -1,0 +1,42 @@
+\section{Results}
+\subsection{Comparisons between models}
+We started comparing our models, which were trained on 20\% of the dataset, with some state-of-art models using the Flores dataset as benchmark. Keep in mind that the training time is based on the TPUs performances.
+\begin{table}[H]
+\centering
+\begin{tabular}{l|c|c|c|c|c|c}\hline \hline
+\multicolumn{7}{c}{\textbf{Our Models}} \\\hline
+\textbf{Encoder} & \textbf{Task} & \textbf{Param.} & \textbf{Tr. time} & \textbf{Acc. (tr, val, ts)} & \textbf{k=1} & \textbf{k=5}\\\hline
+Base & NMT & 223M & 372 m & 0.781, 0.796, 0.795 & 11.2 & 11.2\\
+DistilBERT & Masked & 276M & 396 m & 0.809, 0.826, 0.826 & 12.8 & 10.1\\
+RoBERTa & Masked & 276M & 400 m & 0.805, 0.823, 0.822 & 12.8 & 10.0\\
+T5 v1.1 small & NMT & 180M & 380 m & 0.769, 0.787, 0.786 & 16.9 & 10.1\\\hline \hline
+\multicolumn{7}{c}{\textbf{Baseline Models}} \\\hline
+\textbf{Model} & \multicolumn{3}{c|}{\textbf{Task}} & \multicolumn{3}{c}{\textbf{BLEU}}\\\hline
+MarianMT & \multicolumn{3}{c|}{NMT} & \multicolumn{3}{c}{33.2}\\
+Google & \multicolumn{3}{c|}{NMT} & \multicolumn{3}{c}{38.9}\\
+DeltaLM & \multicolumn{3}{c|}{NMT} & \multicolumn{3}{c}{31.7}
+\end{tabular}
+\end{table}
+
+As we expected, models aimed at masked language tasks performed worse than those aimed at NMT ones (moreover we can see that DistilBERT and RoBERTa gave more or less the same results). We can notice that an increase in the number of parameters corresponds to an increase in accuracy and BLEU score, but that's not the case for model using T5 as an encoder which, even though was the smallest one, performed way better than the others.
+\vspace{3mm}
+
+We were saddened by the fact that our models didn't stand a chance against those at the state of art (but this is absolutely normal since they were trained on larger dataset, MarianMT was trained on 45M records which is more than twenty times our full dataset), so we decided to push further our best model (the one with T5 v1.1 as an encoder) by using the entire dataset that will be splitted as usual in training, validation and test sets. The training set now contains nearly two milion records which is nearly three times the amount on which we did the previous analysis, so we expected it to give us better results.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{l|c|c|c|c|c|c}\hline \hline
+\multicolumn{7}{c}{\textbf{Our Final Model}} \\\hline
+\textbf{Encoder} & \textbf{Task} & \textbf{Param.} & \textbf{Tr. time} & \textbf{Acc. (tr, val, ts)} & \textbf{k=1} & \textbf{k=5}\\\hline
+T5 v1.1 & NMT & 180M & 900 m & 0.769, 0.787, 0.786 & 17.7 & 10.1\\\hline \hline
+\multicolumn{7}{c}{\textbf{Baseline Models}} \\\hline
+\textbf{Model} & \multicolumn{3}{c|}{\textbf{Task}} & \multicolumn{3}{c}{\textbf{BLEU}}\\\hline
+MarianMT & \multicolumn{3}{c|}{NMT} & \multicolumn{3}{c}{33.2}\\
+Google & \multicolumn{3}{c|}{NMT} & \multicolumn{3}{c}{38.9}\\
+DeltaLM & \multicolumn{3}{c|}{NMT} & \multicolumn{3}{c}{31.7}
+\end{tabular}
+\end{table}
+
+\subsection{Evaluation}
+The task was a battle against titans, we knew we couldn't stand a chance from the start since we don't have the same amount of parallel data on which the state-of-art models were trained and we don't have powerful machines that can run the training flawlessly for many hours and days (the TPUs on Colab are way better than the GPUs on our machines). Moreover the benchmark dataset is based on sentences taken from Wikipedia so they aren't really that common and our models had some issues with entities' names (which led the translation process astray), but we've seen that our model performs pretty well on day-to-day sentences, so we're going to show some of them.
+%inserisci qualche sentences

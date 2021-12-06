@@ -4,6 +4,7 @@ Before talking about the workflow and the results, we thought that it was necess
 The anki corpus\cite{anki_dataset} we chose to work on was the english-italian one which contained 352040 records at the time of our download and then we preprocessed and divided it in our development (training and validation) and test sets.
 \subsubsection{Preprocessing the anki corpus}
 The corpus was, luckily, without any issue, we just had to take away the copyrights from each single sentence pair, which was done by a simple python method. Moreover we had two versions of the corpus, one with no copyright and one without, the method takes care of this case too.
+\begin{comment}
 \begin{minted}{python}
 def create_dataset_anki(name: str, preprocessed: bool = False):
     with open(name, encoding="UTF-8") as datafile:
@@ -19,12 +20,14 @@ def create_dataset_anki(name: str, preprocessed: bool = False):
 
     return src_set, dst_set
 \end{minted}
+\end{comment}
 The method returns two lists, one for the english sentences and one for the italian ones, we then tokenized both the lists and we proceeded with the creation of our training, validation and test sets with the (0.8, 0.1, 0.1) split.
 At this point the training set is divided in batches and is ready to be fed to the model.
 \subsection{EuroParl en-it dataset}
 Since the anki dataset consists of very simple sentences, we thought that it would be better for our model to include some records from the europarl dataset.
 \subsubsection{Preprocessing the europarl corpus}
 As for the anki dataset, luckily for us the europarl corpus was already largely preprocessed, the main issue was the huge size which it meant that the dataset couldn't fit inside the allocated memory on colab, that's why we decided to take only a fifth of the initial corpus (381823 records).
+\begin{comment}
 \begin{minted}{python}
 def create_dataset_euparl(name: str, src: str = "en", dst: str = "it",
                         size: float = 1) -> (list, list):
@@ -46,6 +49,7 @@ def create_dataset_euparl(name: str, src: str = "en", dst: str = "it",
         
     return src_set, dst_set
 \end{minted}
+\end{comment}
 \subsection{Merging the datasets}
 We merged the two datasets in hope to have a better performance on our models, so we have 733863 records to be splitted into training, validation and test sets.
 \begin{minted}{python}

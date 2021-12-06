@@ -37,8 +37,8 @@ In \ref{subsec:NMT} we've talked about a very simple model composed by two RNNs,
 The particular attention used by Vaswani et al. \cite{vaswani2017attention} is called "Scaled Dot-Product Attention" (Figure \ref{fig:transformer_attention} on the right). The input consists of queries and keys of dimension $dk$, and values of dimension $dv$. We compute the dot products of the query with all keys, divide each by $\sqrt{dk}$, and apply a softmax function to obtain the weights on the values.
 \begin{figure}[H]%
     \centering
-    \subfloat[Multi-Head Attention]{{\includegraphics[width=0.50\linewidth]{images/multi_head_attention.png}}}%
-    \subfloat[Scaled Dot-Product Attention]{{\includegraphics[width=0.50\linewidth]{images/self_attention.png}}}%
+    \subfigure[Multi-Head Attention]{{\includegraphics[width=0.4\linewidth]{images/multi_head_attention.png}}}%
+    \subfigure[Scaled Dot-Product Attention]{{\includegraphics[width=0.4\linewidth]{images/self_attention.png}}}%
     \caption{On the left the multi-head attention is shown composed by multiple heads, on the right the single Scaled Dot-Product Attention mechanism.}
     \label{fig:transformer_attention}%
 \end{figure}
@@ -58,8 +58,8 @@ If we call h as the number of parallel attention layers, or heads, for each of t
 BERT (Bidirectional Encoder Representations from Transformers) is a multi-layer bidirectional Transformer encoder introduced by Drevlin et al. \cite{devlin2018bert} and  based on the original transformer implementation described in Vaswani et al. \cite{vaswani2017attention}.
 \begin{figure}[H]%
     \centering
-    \subfloat[BERT single layer]{{\includegraphics[width=0.50\linewidth]{images/bert_layer.png}}}%
-    \subfloat[BERT stacked layers]{{\includegraphics[width=0.50\linewidth]{images/bert_layers.png}}}%
+    \subfigure[BERT single layer]{{\includegraphics[width=0.50\linewidth]{images/bert_layer.png}}}%
+    \subfigure[BERT stacked layers]{{\includegraphics[width=0.50\linewidth]{images/bert_layers.png}}}%
     \caption{BERT architecture}
     \label{fig:bert}%
 \end{figure}
