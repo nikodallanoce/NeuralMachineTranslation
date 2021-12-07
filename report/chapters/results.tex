@@ -1,42 +1,93 @@
-\section{Results}
+\section{Results} \label{sec:results}
+\subsection{Models architecture}
+The following table shows the different architectures we used in order to compare the performance of our models for the neural machine translation task. In most of the cases we had to reduce the number of parameters on the decoder side of the transformer due to memory and time limitation on the TPUs available on Google Colab and because the encoders (the ones from \cite{huggingface_co}) weren't customizable. While the number of encoder and decoder layers could differ as shown by \cite{ma2021deltalm} for DeltaLM model in which they suggested a number of decoder layers that was $\frac{3}{4}$ of the number of encoder layers, we noticed that a similar amount of attention heads in the decoder and in the encoder produced better results.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{l|c|c|c|c|c}\hline \hline
+\multicolumn{6}{c}{\textbf{Architectures}} \\\hline
+\textbf{Model} & \textbf{Encoder} & \textbf{Decoder} & \textbf{Heads (En/De)} & \textbf{Latent dim} & \textbf{FFNN}\\\hline
+Base & 6 layers & 6 layers & 8 / 8 & 512  & 2048 \\
+DistilBERT & 6 layers & 4 layers & 12 / 8 & 768 & 3072 \\
+RoBERTa & 12 layers & 3 layers & 12 / 8 & 768 & 3072\\
+T5 v1.1 small & 8 layers & 6 layers & 6 / 8 & 512 & 1024\\\hline \hline
+\end{tabular}
+\caption{An architectural comparison between the models we used for NMT.}
+\end{table}
+
 \subsection{Comparisons between models}
-We started comparing our models, which were trained on 20\% of the dataset, with some state-of-art models using the Flores dataset as benchmark. Keep in mind that the training time is based on the TPUs performances.
+We started comparing our models, which were trained on 20\% of the dataset between thmeselves using the Flores dataset as benchmark. Keep in mind that the training time is based on the TPUs performances.
 \begin{table}[H]
 \centering
 \begin{tabular}{l|c|c|c|c|c|c}\hline \hline
 \multicolumn{7}{c}{\textbf{Our Models}} \\\hline
-\textbf{Encoder} & \textbf{Task} & \textbf{Param.} & \textbf{Tr. time} & \textbf{Acc. (tr, val, ts)} & \textbf{k=1} & \textbf{k=5}\\\hline
-Base & NMT & 223M & 372 m & 0.781, 0.796, 0.795 & 11.2 & 11.2\\
-DistilBERT & Masked & 276M & 396 m & 0.809, 0.826, 0.826 & 12.8 & 10.1\\
-RoBERTa & Masked & 276M & 400 m & 0.805, 0.823, 0.822 & 12.8 & 10.0\\
-T5 v1.1 small & NMT & 180M & 380 m & 0.769, 0.787, 0.786 & 16.9 & 10.1\\\hline \hline
-\multicolumn{7}{c}{\textbf{Baseline Models}} \\\hline
-\textbf{Model} & \multicolumn{3}{c|}{\textbf{Task}} & \multicolumn{3}{c}{\textbf{BLEU}}\\\hline
-MarianMT & \multicolumn{3}{c|}{NMT} & \multicolumn{3}{c}{33.2}\\
-Google & \multicolumn{3}{c|}{NMT} & \multicolumn{3}{c}{38.9}\\
-DeltaLM & \multicolumn{3}{c|}{NMT} & \multicolumn{3}{c}{31.7}
+\textbf{Encoder} & \textbf{Task} & \textbf{Param.} & \textbf{Tr. time} & \textbf{Acc. (tr, val)} & \textbf{k=1} & \textbf{k=5}\\\hline
+Base & NMT & 223M & 372 m & 0.781, 0.796 & 11.2 & 8.6\\
+DistilBERT & Masked LM & 276M & 396 m & 0.809, 0.826 & 12.8 & 10.1\\
+RoBERTa & Masked LM & 276M & 400 m & 0.805, 0.823 & 12.8 & 10.0\\
+T5 v1.1 small & NMT & 180M & 380 m & 0.769, 0.787 & 15.2 & 12.4\\\hline \hline
 \end{tabular}
+\caption{A quantitative comparison of the results obtained by the models we used for NMT.}
 \end{table}
-
-As we expected, models aimed at masked language tasks performed worse than those aimed at NMT ones (moreover we can see that DistilBERT and RoBERTa gave more or less the same results). We can notice that an increase in the number of parameters corresponds to an increase in accuracy and BLEU score, but that's not the case for model using T5 as an encoder which, even though was the smallest one, performed way better than the others.
+As we expected, models aimed at masked language tasks performed worse than those aimed at NMT ones (moreover we can see that DistilBERT and RoBERTa gave more or less the same results). We can notice that an increase in the number of parameters corresponds to an increase in accuracy and BLEU score, but that's not the case for the model using T5 as an encoder which, even though was the smallest one, performed way better than the others.
 \vspace{3mm}
 
-We were saddened by the fact that our models didn't stand a chance against those at the state of art (but this is absolutely normal since they were trained on larger dataset, MarianMT was trained on 45M records which is more than twenty times our full dataset), so we decided to push further our best model (the one with T5 v1.1 as an encoder) by using the entire dataset that will be splitted as usual in training, validation and test sets. The training set now contains nearly two milion records which is nearly three times the amount on which we did the previous analysis, so we expected it to give us better results.
+Even though we expected similar results with the translations done with top-k sampling with k=5, that wasn't the case and the BLEU score wasn't at the same level with those translations done with k=1.
+\vspace{3mm}
+
+We were saddened by the fact that our models didn't have nice SacreBLEU scores we decided to push further our best model (the one with T5 v1.1 as an encoder) by adding more layers on the decoder side (8 instead of 6) and by using the 70\% of the entire dataset and then the full one. As shown in \ref{table:final_comparison} the size of the dataset really makes the difference. In fact, by comparing two identical models, one trained using 70\% of the dataset and one trained on the full dataset, the second one outperforms the first one by 0.8 SacreBLEU score.
+
+The training set, from the full dataset, now contains nearly two million records which is three times the amount on which we did the previous analysis, so we expected it to give us better results.
 
 \begin{table}[H]
 \centering
-\begin{tabular}{l|c|c|c|c|c|c}\hline \hline
-\multicolumn{7}{c}{\textbf{Our Final Model}} \\\hline
-\textbf{Encoder} & \textbf{Task} & \textbf{Param.} & \textbf{Tr. time} & \textbf{Acc. (tr, val, ts)} & \textbf{k=1} & \textbf{k=5}\\\hline
-T5 v1.1 & NMT & 180M & 900 m & 0.769, 0.787, 0.786 & 17.7 & 10.1\\\hline \hline
-\multicolumn{7}{c}{\textbf{Baseline Models}} \\\hline
-\textbf{Model} & \multicolumn{3}{c|}{\textbf{Task}} & \multicolumn{3}{c}{\textbf{BLEU}}\\\hline
-MarianMT & \multicolumn{3}{c|}{NMT} & \multicolumn{3}{c}{33.2}\\
-Google & \multicolumn{3}{c|}{NMT} & \multicolumn{3}{c}{38.9}\\
-DeltaLM & \multicolumn{3}{c|}{NMT} & \multicolumn{3}{c}{31.7}
+\begin{tabular}{l|c|c|c|c|c}\hline \hline
+\multicolumn{6}{c}{\textbf{Our Final Models}} \\\hline
+\textbf{Encoder} & \textbf{Decoder} & \textbf{Param.} & \textbf{Epochs} & \textbf{Acc. (tr, val)} & \textbf{SacreBLEU}\\\hline
+T5 v1.1 small & 8 layers & 218M & 20 & 0.769, 0.787 & 16.9\\
+T5 v1.1 small & 8 layers & 218M & 18 & 0.735, 0.751 & 17.7\\\hline \hline 
 \end{tabular}
 \end{table}
+We then compared our best models against some state-of-art models that we taken from the web by using the Flores dataset as benchmark.
+\begin{table}[H]
+\centering
+\begin{tabular}{l|c|c}\hline \hline
+\multicolumn{3}{c}{\textbf{Models Comparison}} \\\hline
+\textbf{Model} & \multicolumn{1}{c|}{\textbf{Corpus size}} & \multicolumn{1}{c}{\textbf{SacreBLEU}}\\\hline
+DeltaLM & 6.088 TB (multilang) & 31.7 \\
+MarianMT & 45 M (of sentence pair) & 33.2 \\
+Google & It's Google! & 38.9\\
+Our T5 (70\%) & 460MB (70\% of 658MB) & 16.9 \\
+Our T5 (full) & 658MB & 17.7 \\
+\hline \hline
+\end{tabular}
+\label{table:final_comparison}
+\caption{Comparison between the models made by our self and the most popular in NMT field.}
+\end{table}
 
-\subsection{Evaluation}
-The task was a battle against titans, we knew we couldn't stand a chance from the start since we don't have the same amount of parallel data on which the state-of-art models were trained and we don't have powerful machines that can run the training flawlessly for many hours and days (the TPUs on Colab are way better than the GPUs on our machines). Moreover the benchmark dataset is based on sentences taken from Wikipedia so they aren't really that common and our models had some issues with entities' names (which led the translation process astray), but we've seen that our model performs pretty well on day-to-day sentences, so we're going to show some of them.
-%inserisci qualche sentences
+\subsection{Final considerations on our work}
+The task was a battle against titans, we knew we couldn't stand a chance from the start since we don't have the same amount of parallel data on which the state-of-art models were trained and we don't have powerful machines that can run the training flawlessly for many hours and days (the TPUs on Colab are way better than the GPUs on our machines). Moreover the benchmark dataset is based on sentences taken from Wikipedia so they aren't really that common and our models had some issues with entities' names (which led the translation process astray), but we've seen that our model performs pretty well on day-to-day sentences, so we're somewhat satisfied that our model is doing its task correctly. We've tried to push the best model for more epochs but the improvements were not so great since the available corpus was still the same and, as we know from the course, we need more records to improve the performances of our model.
+\vspace{3mm}
+
+We'll now show some translations from our best model to end our report.
+\begin{itemize}
+    \item EN: In many other cities of Italy and in the rest of the world, particularly in Spain, similar setups were made, which were viewed by a great number of people.\\IT: In molte altre città italiane e nel resto del mondo , in particolare in Spagna , sono stati fatti degli equipaggiamenti analoghi , che sono stati visti da un gran numero di persone .
+
+    \item EN: I don't think there is anyone in the world who has so near his heart the ideal of peace, as I have\\IT: Non penso che ci sia qualcuno nel mondo che ha così vicino al suo cuore l ' ideale della pace , come ho .
+
+    \item EN: The girl stepped to the mirror and stared, she was fascinated by her elegance.\\IT: La ragazza si è rivolta allo specchio e ha posato , era affascinata dalla sua eleganza .
+
+    \item EN: Perhaps that is why I was not to be permitted to attend your conversation.\\IT: Forse è per questo che non mi è stato permesso di partecipare alla sua conversazione .
+
+    \item EN: He wanted what he wanted and he wanted it beyond thought and beyond rationality.\\IT: Voleva quello che voleva e lo voleva al di là della logica e della razionalità .
+
+    \item EN: Your muscles are amazingly strong and your reaction time is amazingly fast, you're one of the best players i've ever seen.\\IT: Le vostre muscoli sono incredibilmente forti e il suo orario di reazione è incredibilmente veloce , sei uno dei migliori giocatori che io abbia mai visto .
+
+    \item EN: You will have the necessary computers and reference material.\\IT: Avrai i computer e i materiali necessari per il riferimento .
+
+    \item EN: We've been doing this task for about three months and i'm very tired now, i think we both need some rest before starting another one.\\IT: Noi abbiamo fatto questo compito per circa tre mesi e sono molto stanco adesso , penso che dobbiamo entrambi riposarci prima di cominciare un altro .
+
+    \item EN: What else do we have to do rigth now for this project? We need to think about what to do for the next one.\\IT: Che altro dobbiamo fare il passo necessario per questo progetto ? Dobbiamo pensare a cosa fare per il prossimo .
+
+    \item EN: We weren't sure about what to do at the start, but now we're sure we  made the right choices, hopefully.\\IT: Non eravamo sicuri di cosa fare all ' inizio , però ora siamo diventati le scelte giuste , speriamo .
+\end{itemize}
