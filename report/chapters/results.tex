@@ -1,0 +1,72 @@
+\section{Results} \label{sec:results}
+\subsection{Models architecture}
+The following table shows the different architectures we used in order to compare the performance of our models for the neural machine translation task. In most of the cases we had to reduce the number of parameters on the decoder side of the transformer due to memory and time limitation on the TPUs available on Google Colab and because the encoders (the ones from \cite{huggingface_co}) weren't customizable. While the number of encoder and decoder layers could differ as shown by \cite{ma2021deltalm} for the DeltaLM model in which they suggested a number of decoder layers that was $\frac{3}{4}$ of the number of encoder layers, moreover we noticed that a similar amount of attention heads in the decoder and in the encoder produced better results.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{l|c|c|c|c|c}\hline \hline
+\multicolumn{6}{c}{\textbf{Architectures}} \\\hline
+\textbf{Model} & \textbf{Encoder} & \textbf{Decoder} & \textbf{Heads (En/De)} & \textbf{Latent dim} & \textbf{FFNN}\\\hline
+Base & 6 layers & 6 layers & 8 / 8 & 512  & 2048 \\
+DistilBERT & 6 layers & 4 layers & 12 / 8 & 768 & 3072 \\
+RoBERTa & 12 layers & 3 layers & 12 / 8 & 768 & 3072\\
+T5 v1.1 small & 8 layers & 6 layers & 6 / 8 & 512 & 1024\\\hline \hline
+\end{tabular}
+\caption{An architectural comparison between the models we used for NMT.}
+\label{table:architectures}
+\end{table}
+
+\subsection{Comparisons between models}
+We started comparing our models, which were trained on 20\% of the dataset, between themselves using the Flores dataset as benchmark. Keep in mind that the training time is based on the TPUs performances.
+\begin{table}[H]
+\centering
+\begin{tabular}{l|c|c|c|c|c|c}\hline \hline
+\multicolumn{7}{c}{\textbf{Our Models}} \\\hline
+\textbf{Encoder} & \textbf{Task} & \textbf{Param.} & \textbf{Tr. time} & \textbf{Acc. (tr, val)} & \textbf{k=1} & \textbf{k=5}\\\hline
+Base & NMT & 223M & 372 m & 0.781, 0.796 & 11.2 & 8.6\\
+DistilBERT & Masked LM & 276M & 396 m & 0.809, 0.826 & 12.8 & 10.1\\
+RoBERTa & Masked LM & 276M & 400 m & 0.805, 0.823 & 12.8 & 10.0\\
+T5 v1.1 small & NMT & 180M & 380 m & 0.769, 0.787 & 15.2 & 12.4\\\hline \hline
+\end{tabular}
+\caption{A quantitative comparison of the results obtained by the models we used for NMT.}
+\end{table}
+As we expected, models aimed at masked language tasks performed worse than those aimed at NMT ones (moreover we can see that DistilBERT and RoBERTa gave more or less the same results). We can notice that an increase in the number of parameters corresponds to an increase in accuracy and SacreBLEU score, but that's not the case for the model using T5 as an encoder which, even though was the smallest one, performed way better than the others.
+\vspace{3mm}
+
+Even though we expected similar results with the translations done with top-k sampling with k=5, that wasn't the case and the BLEU score wasn't at the same level with those translations done with k=1.
+\vspace{3mm}
+
+We were saddened by the fact that our models didn't have nice SacreBLEU scores, so we decided to push further our best model (the one with T5 v1.1 as an encoder) by adding more layers on the decoder side (8 instead of 6) and by using the 70\% of the entire dataset and then the full one. As shown in \autoref{table:final_comparison} the size of the dataset really makes the difference. In fact, by comparing two identical models, one trained using 70\% of the dataset and one trained on the full dataset, the second one outperforms the first one by 0.8 SacreBLEU score.
+
+The training set, from the full dataset, now contains nearly two million records which is three times the amount on which we did the previous analysis, so we expected it to give us better results.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{l|c|c|c|c|c}\hline \hline
+\multicolumn{6}{c}{\textbf{Our Final Models}} \\\hline
+\textbf{Encoder} & \textbf{Decoder} & \textbf{Param.} & \textbf{Epochs} & \textbf{Acc. (tr, val)} & \textbf{SacreBLEU}\\\hline
+T5 v1.1 small 70\% & 8 layers & 218M & 20 & 0.769, 0.787 & 16.9\\
+T5 v1.1 small & 8 layers & 218M & 18 & 0.735, 0.751 & 17.7\\\hline \hline 
+\end{tabular}
+\caption{Our final models built from the best model from the previous comparison.}
+\end{table}
+We then compared our best models against some state-of-art models, that we've taken from the web, by using the Flores dataset as benchmark.
+\begin{table}[H]
+\centering
+\begin{tabular}{l|c|c}\hline \hline
+\multicolumn{3}{c}{\textbf{Models Comparison}} \\\hline
+\textbf{Model} & \multicolumn{1}{c|}{\textbf{Corpus size}} & \multicolumn{1}{c}{\textbf{SacreBLEU}}\\\hline
+DeltaLM & 6.088 TB (multilang) & 31.7 \\
+MarianMT & 45 M (of sentence pair) & 33.2 \\
+Google translate & It's Google! & 38.9\\
+Our T5 v1,1 (70\%) & 460MB (70\% of 658MB) & 16.9 \\
+Our T5 v1.1 (full) & 658MB & 17.7 \\
+\hline \hline
+\end{tabular}
+\caption{Comparison between our models and the most popular in the NMT field.}
+\label{table:final_comparison}
+\end{table}
+
+\subsection{Final considerations on our work}
+The task was a battle against titans, we knew we couldn't stand a chance from the start since we don't have the same amount of parallel data on which the state-of-art models were trained and we don't have powerful machines that can run the training flawlessly for many hours and days (the TPUs on Colab are way better than the GPUs on our machines). Moreover the benchmark dataset is based on sentences taken from Wikipedia so they aren't really that common and our models had some issues with entities' names (which led the translation process astray), but we've seen that our model performs pretty well on day-to-day sentences, so we're somewhat satisfied that it's doing its task somewhat correctly. We've tried to push the best model for more epochs but the improvements were not so great since the available corpus was still the same and, as we know from the course, we need more records to improve the performances of our model.
+\vspace{3mm}

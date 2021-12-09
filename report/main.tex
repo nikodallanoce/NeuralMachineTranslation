@@ -4,32 +4,40 @@
 \usepackage{natbib}
 \usepackage{graphicx}
 \usepackage{color}
-\usepackage{subfig}
 \usepackage{float}
 \usepackage{hyperref}
 \usepackage{url}
 \usepackage{listings}
-%\usepackage{pythontex}
+\usepackage{amsthm}
+\usepackage{comment}
+\usepackage{subfigure}
+\usepackage{chngcntr}
+\counterwithin{figure}{subsection}
+\counterwithin{table}{subsection}
+%\counterwithin{subfigure}{section}
 \definecolor{bg}{gray}{0.95}
 \usepackage{minted}
 
-\title{\vspace{-2cm}\textbf{Human Language Technologies project report}}
+\title{\vspace{-2cm}\textbf{Human Language Technologies} \textbf{Implementing NMT models}}
 \author{\textbf{\small{\textit{Dalla Noce Niko, Ristori Alessandro}}} \\ % put your full name here
-        \small{Master Degree in Computer science.}\\ \small{{n.dallanoce@studenti.unipi.it, a.ristori5@studenti.unipi.it}.} \\  % put your Master Degree here
+        \small{Master Degree in Computer science.}\\
+        \small{Curriculum: Artificial Intelligence.}\\
+        \small{{n.dallanoce@studenti.unipi.it, a.ristori5@studenti.unipi.it }.} \\  % put your Master Degree here
         \small{Human Language Technologies, Academic Year: 2020/2021} \\
-        \small{Date: 10/05/2021} \\
+        \small{Date: 7/12/2021} \\
        \textbf{\small{\url{https://github.com/nikodallanoce/HLT}}}
 }
 
 \renewcommand\refname{} %remove this line to automatically show the bibliography header
 
-\begin{document}
 
+
+\begin{document}
 \nocite{*}  % comment this line to list only the articles you really cite
 \date{}
 \maketitle
 \begin{center}
-    \includegraphics[width=0.2\textwidth]{images/unipi.png}\\
+    \includegraphics[width=0.3\textwidth]{images/unipi.png}\\
     \vspace{0.5cm}
 \end{center}
 \begin{abstract}
@@ -39,10 +47,13 @@ The report starts with a long, but needed introduction to the main concepts that
 \tableofcontents
 \newpage
 \listoffigures
+\theoremstyle{definition}
+\newtheorem{exmp}{Example}[section]
 \include{chapters/introduction}
 \include{chapters/datasets}
-%\include{chapters/task}
 \include{chapters/workflow}
+\include{chapters/results}
+\include{chapters/appendix}
 \include{chapters/references}
 
 \end{document}

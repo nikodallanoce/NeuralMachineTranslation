@@ -1,0 +1,103 @@
+\section{Appendix: Beam search translations}\label{app:beam_search}
+In this section we will show how our best model translates some sentences using the beam search technique. The beam size is set equal to 2 and the branches of the tree are pruned if their conditional cumulative probability is lower than an half of to the best one. The choice of the beam size is motivated by the fact that our dataset is limited and does not contain too much words having the same meaning. As a confirmation, we noticed that in almost all the cases the third word extracted had a probability near to zero.
+\vspace{3mm}
+
+In the following list, we put a tag "EN" to indicate the sentence to translate and the tag "IT" to indicate the best translation, according to the beam search. Moreover, inside "Best branches" we listed the top 3 most probable sentences and their final cumulative probability. In some cases, there could be less than 3 candidate sentences, due to the pruning strategy which cuts the branches having too low probability. We won't show the translations with the other methods we've talked about in subsection \ref{subsec:translator} since the results are pretty similar between them.
+\begin{itemize}
+    \item \textbf{EN:} In many other cities of Italy and in the rest of the world, particularly in Spain, similar setups were made, which were viewed by a great number of people.
+    
+    \textbf{Best branches:}
+    \begin{itemize}
+        \item In molte altre città italiane e nel resto del mondo , in particolare in Spagna , sono state fatte degli insediamenti simili , visti da molti cittadini ., \textbf{5.3550e-06}
+        \item  In molte altre città italiane e nel resto del mondo , in particolare in Spagna , sono state fatte delle formazioni simili , viste da moltissime ., \textbf{2.8514e-07}
+        \item In molte altre città italiane e nel resto del mondo , in particolare in Spagna , sono state fatte delle strutture simili , viste da moltissime ., \textbf{1.2335e-07}
+    \end{itemize}
+    \textbf{IT:} In molte altre città italiane e nel resto del mondo , in particolare in Spagna , sono state fatte degli insediamenti simili , visti da molti cittadini .\\
+    \noindent\rule{14.8cm}{0.4pt}
+
+    \item \textbf{EN:} I don't think there is anyone in the world who has so near his heart the ideal of peace, as I have.
+    
+    \textbf{Best branches:}
+    \begin{itemize}
+    \item Non penso che nessuno nel mondo abbia così vicino al suo cuore l ' ideale della pace come me ., \textbf{0.0171}
+    \item Io non penso che nessuno nel mondo abbia così vicino al suo cuore l ' ideale della pace come me ., \textbf{0.0131}
+    \item Io non penso che nessuno nel mondo abbia così vicino al suo cuore l ' ideale della pace , come ho ., \textbf{0.0027}
+    \end{itemize}
+    \textbf{IT:} Non penso che nessuno nel mondo abbia così vicino al suo cuore l ' ideale della pace come me .\\
+    \noindent\rule{14.8cm}{0.4pt}
+
+    \item \textbf{EN:} The girl stepped to the mirror and stared, she was fascinated by her elegance.
+    
+    \textbf{Best branches:}
+    \begin{itemize}
+        \item La ragazza si è rivolta allo specchio e ha guardato , era affascinata dalla sua eleganza .', \textbf{0.001102}
+        \item La ragazza si è rivolta allo specchio e ha guardato , è affascinata dalla sua eleganza .', \textbf{0.000262}
+        \item La ragazza si è mossa allo specchio e ha guardato , era affascinata dalla sua eleganza .', \textbf{0.000822}
+    \end{itemize}
+    \textbf{IT:} La ragazza si è rivolta allo specchio e ha guardato , era affascinata dalla sua eleganza .\\
+    \noindent\rule{14.8cm}{0.4pt}
+
+    \item \textbf{EN:} He wanted what he wanted and he wanted it beyond thought and beyond rationality.
+    
+    \textbf{Best branches:}
+    \begin{itemize}
+        \item Voleva quello che voleva e che era oltre la logica ., \textbf{0.00402}
+        \item Voleva quello che voleva e che voleva oltre la logica ., \textbf{0.00350}
+        \item Voleva quello che voleva e che era al di là della logica ., \textbf{0.00448}
+    \end{itemize}
+    \textbf{IT:} Voleva quello che voleva e che era al di là della logica .\\
+    \noindent\rule{14.8cm}{0.4pt}
+
+    \item \textbf{EN:} Your muscles are amazingly strong and your reaction time is amazingly fast, you're one of the best players i've ever seen.
+    
+    \textbf{Best branches:}
+    \begin{itemize}
+        \item Le sue muscoli sono incredibilmente forti e il suo tempo di reazione è incredibilmente veloce , sei uno dei giocatori migliori che abbia mai visto ., \textbf{0.002565}
+        \item Le sue muscoli sono incredibilmente forti e il suo tempo di reazione è incredibilmente veloce , siete uno dei giocatori migliori che abbia mai visto ., \textbf{0.001649}
+        \item Le vostre muscoli sono incredibilmente forti e il suo tempo di reazione è incredibilmente veloce , sei uno dei giocatori migliori che abbia mai visto ., \textbf{0.001826}
+    \end{itemize}
+    \textbf{IT:} Le sue muscoli sono incredibilmente forti e il suo tempo di reazione è incredibilmente veloce , sei uno dei giocatori migliori che abbia mai visto .\\
+    \noindent\rule{14.8cm}{0.4pt}
+
+    \item \textbf{EN:} You will have the necessary computers and reference material.
+    
+    \textbf{Best branches:}
+    \begin{itemize}
+        \item Avrai i computer necessari e il materiale di riferimento .,\textbf{0.1522}
+        \item Avrete i computer necessari e il materiale di riferimento ., \textbf{0.1659}
+    \end{itemize}
+    \textbf{IT:} Avrete i computer necessari e il materiale di riferimento .\\
+    \noindent\rule{14.8cm}{0.4pt}
+
+    \item \textbf{EN:} We've been doing this task for about three months and i'm very tired now, i think we both need some rest before starting another one.
+    
+    \textbf{Best branches:}
+    \begin{itemize}
+        \item Noi facciamo questo compito da circa tre mesi e sono molto stanco ora , penso che entrambi abbiamo bisogno di riposarmi prima di iniziare un altro ., \textbf{0.0001522}
+        \item Noi facciamo questo compito da circa tre mesi e sono molto stanco ora , penso che entrambi abbiamo bisogno di riposarci prima di iniziare un altro ., \textbf{0.0001506}
+        \item Noi facciamo questo compito da circa tre mesi e sono molto stanco adesso , penso che entrambi abbiamo bisogno di riposarmi prima di iniziare un altro ., \textbf{0.0001502}
+    \end{itemize}
+    \textbf{IT:} Noi facciamo questo compito da circa tre mesi e sono molto stanco ora , penso che entrambi abbiamo bisogno di riposarmi prima di iniziare un altro .\\
+    \noindent\rule{14.8cm}{0.4pt}
+
+    \item \textbf{EN:} What else do we have to do for this project now? We need to think about what to do for the next one.
+    
+    \textbf{Best branches:}
+    \begin{itemize}
+        \item Che altro dobbiamo fare per questo progetto ? Dobbiamo pensare a cosa fare per il prossimo ., \textbf{0.0178}
+        \item Che altro dobbiamo fare per questo progetto adesso ? Dobbiamo pensare a cosa fare per il prossimo ., \textbf{0.0447}
+        \item Che altro dobbiamo fare per questo progetto ? Ora dobbiamo pensare a cosa fare per il prossimo ., \textbf{0.0226}
+    \end{itemize}
+    \textbf{IT:} Che altro dobbiamo fare per questo progetto adesso ? Dobbiamo pensare a cosa fare per il prossimo .\\
+    \noindent\rule{14.8cm}{0.4pt}
+
+    \item \textbf{EN:} We weren't sure about what to do at the start, but now we're sure we made the right choices, hopefully.
+    
+    \textbf{Best branches:}
+    \begin{itemize}
+        \item Non eravamo sicuri di cosa fare all ' inizio , però ora siamo sicuri di aver fatto le scelte giuste , speriamo ., \textbf{0.0200}
+        \item Non eravamo sicuri di cosa fare all ' inizio , ma ora siamo sicuri di aver fatto le scelte giuste , speriamo .,\textbf{ 0.0196}
+    \end{itemize}
+    \textbf{IT:} Non eravamo sicuri di cosa fare all ' inizio , però ora siamo sicuri di aver fatto le scelte giuste , speriamo .
+
+\end{itemize}

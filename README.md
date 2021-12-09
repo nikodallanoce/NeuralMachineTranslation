@@ -20,6 +20,8 @@ The baselines for confronting the results of our models were chosen from:
 ## Tokenizers and models
 We used https://huggingface.co/dbmdz/bert-base-italian-cased as the italian tokenizer for each of our models, for the source language we used the correct tokenizer for each encoder.
 ### Masked language encoders:
+- https://huggingface.co/bert-base-cased
 - https://huggingface.co/distilbert-base-cased
+- https://huggingface.co/roberta-base
 ### Neural machine translation encoders:
 - https://huggingface.co/google/t5-v1_1-small
