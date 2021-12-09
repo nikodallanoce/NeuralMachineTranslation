@@ -1,5 +1,5 @@
 \section{Datasets and benchmark}\label{sec:dataset}
-Before talking about the workflow and the results, we thought it was necessary to explain the datasets we used and how we preprocessed them. At the beginning we first tried to use  europarl en-it corpus, however we've found ourselves overwhelmed by the dataset's huge size, moreover it was filled with extremely long sentences. The training phase of our model was extremely time-consuming, even on Colab TPUs. As a consequence, we tried using only an half of the original dataset but the model did not translate well. To overcome those difficulties,  we decided to adopt a second dataset, the en-it anki corpus which contains way less records than the first one (with more sentences used in a normal conversation), but enough to build a simple and well behaved NMT model.
+Before talking about the workflow and the results, we thought it was necessary to explain the datasets we used and how we preprocessed them. At the beginning we first tried to use the  europarl en-it corpus, however we've found ourselves overwhelmed by the dataset's huge size, moreover it was filled with extremely long sentences, so the training phase of our model was extremely time-consuming, even on Colab TPUs. As a consequence, we tried using only an half of the original dataset but the model did not translate well. To overcome those difficulties,  we decided to adopt a second dataset, the en-it anki corpus which contains way less records than the first one (with more sentences used in a normal conversation), but enough to build a simple and well behaved NMT model.
 \subsection{ANKI en-it dataset}
 The anki corpus from \cite{anki_dataset} to work on was the english-italian one which contained 352040 records at the time of our download and then we preprocessed and divided it in our development (training and validation) and test sets.
 \subsubsection{Preprocessing the anki corpus}
@@ -67,8 +67,9 @@ The split was (0.8, 0.1, 0.1) resulting in the following size for our sets:
     \item Test set size: 73387.
 \end{itemize}
 The sets are then splitted into batches to improve the training done by the keras fit method.
+
 \subsection{Benchmark}
-We found a recently developed benchmark based on sacrebleu for our project which is the flores dataset built by \cite{goyal2021flores}, it was developed by Facebook and it's useful for those languages with not so many resources (italian doesn't have many evaluation datasets around) and for assessing not so huge models, which is perfect for our case.
+We found a recently developed benchmark based on SacreBLEU for our project which is the flores dataset built by \cite{goyal2021flores}, it was developed by Facebook and it's useful for those languages with not so many resources (italian doesn't have many evaluation datasets around) and for assessing not so huge models, which is perfect for our case.
 \vspace{3mm}
 
-The benchmark is based on SacreBLEU( which is an improved version of BLEU that expects detokenized sentence to evaluate a model performances developed by \cite{post2018call}) and comes with a test set composed by 1012 sentences taken from the english wikipedia and translated by humans, so each of our models were evaluated on how they performed on that set.
+The benchmark, as we said before, is based on SacreBLEU( which is an improved version of BLEU that expects detokenized sentence to evaluate a model performances developed by \cite{post2018call}) and comes with a test set composed by 1012 sentences taken from the english wikipedia and translated by humans, so each of our models were evaluated on how they performed on that set.

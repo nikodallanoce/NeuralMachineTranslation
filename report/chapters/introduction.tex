@@ -1,7 +1,7 @@
 \section{Introduction}
 Before we dive into our work, we briefly talk about our task and introduce the key concepts and models that we used during our project.
 \subsection{Task}
-The purpose of our task was to understand and implement NMT models and do a comparison between them and state-of-art models, to achieve that we had to build an encoder-decoder from scratch and then we exploited the transformers available on Hugginface.com \cite{huggingface_co} to improve the performance of our model. The best one was then pushed even further by feeding it more records during training and letting it run for more epochs in hope to achieve a better revisited BLEU score by \cite{goyal2021flores}. As for the datasets we used the english-italian one from \cite{anki_dataset} and the en-it europarl \cite{koehn2005europarl}, which, combined, resulted in more than 2 milion records, not enough to reach the perfomances of state-of-art models, but still useful to achieve nice results.
+The purpose of our task was to understand and implement NMT models and do a comparison between them and state-of-art models, to achieve that we had to build an encoder-decoder from scratch and then we exploited the transformers available on \cite{huggingface_co} to improve the performance of our model. The best one was then pushed even further by feeding it more records during training and letting it run for more epochs in hope to achieve a better revisited SacreBLEU score by \cite{goyal2021flores}. As for the datasets we used the english-italian one from \cite{anki_dataset} and the en-it europarl \cite{koehn2005europarl}, which, combined, resulted in more than 2 milion records, not enough to reach the perfomances of state-of-art models, but still enough to achieve nice results.
 \vspace{3mm}
 
 Over the next subsections, we'll talk about NMT and the models used for our work and their architecture, to give a better insight on their peculiarities and how we tried to exploit them.
@@ -43,12 +43,12 @@ The positional encoding vector is added to the embedding vector. Embeddings repr
     PE_{(pos, 2i)} = sin(pos/10000^{2i/d_{model}}), \qquad PE_{(pos, 2i+1)} = cos(pos/10000^{2i/d_{model}})
 \]
 
-\subsubsection{Self and multi-head attention}
-The particular attention used by \cite{vaswani2017attention} is called "Scaled Dot-Product Attention" (Figure \ref{fig:transformer_attention} on the right). The input consists of queries and keys of dimension $dk$, and values of dimension $dv$. We compute the dot products of the query with all keys, divide each by $\sqrt{dk}$, and apply a softmax function to obtain the weights on the values.
+\subsubsection{Scaled Dot-Product Attention and multi-head attention}
+The particular attention used by \cite{vaswani2017attention} is called "Scaled Dot-Product Attention" (Figure \ref{fig:transformer_attention} \subref{fig:scaled_attention}). The input consists of queries and keys of dimension $dk$, and values of dimension $dv$. We compute the dot products of the query with all keys, divide each by $\sqrt{dk}$, and apply a softmax function to obtain the weights on the values.
 \begin{figure}[H]%
     \centering
-    \subfigure[Multi-Head Attention]{{\includegraphics[width=0.4\linewidth]{images/multi_head_attention.png}}}%
-    \subfigure[Scaled Dot-Product Attention]{{\includegraphics[width=0.4\linewidth]{images/self_attention.png}}}%
+    \subfigure[Multi-Head Attention \label{fig:multi_head_attention}]{{\includegraphics[width=0.4\linewidth]{images/multi_head_attention.png}}}%
+    \subfigure[Scaled Dot-Product Attention \label{fig:scaled_attention}]{{\includegraphics[width=0.4\linewidth]{images/self_attention.png}}}%
     \caption{On the left the multi-head attention is shown composed by multiple heads, on the right the single Scaled Dot-Product Attention mechanism.}
     \label{fig:transformer_attention}%
 \end{figure}
@@ -56,7 +56,7 @@ The attention function is computed on a set of queries simultaneously, packed to
 %\begin{large}
 $$Attention(Q, K, V ) = softmax(\frac{QK^T}{\sqrt{dk}})V$$
 %\end{large}
-Instead of performing a single attention function with keys, values and queries whose dimension is based on the model dimension, it is beneficial to linearly project the queries, keys and values h times with different, learned linear projections to dk, dk and dv dimensions, respectively. On each of these projected versions of queries, keys and values we then perform the attention function in parallel, yielding $dv$-dimensional output values. These are concatenated and once again projected, resulting in the final values, as depicted in Figure \ref{fig:transformer_attention} on the left.
+Instead of performing a single attention function with keys, values and queries whose dimension is based on the model dimension, it is beneficial to linearly project the queries, keys and values h times with different, learned linear projections to dk, dk and dv dimensions, respectively. On each of these projected versions of queries, keys and values we then perform the attention function in parallel, yielding $dv$-dimensional output values. These are concatenated and once again projected, resulting in the final values, as depicted in Figure \ref{fig:transformer_attention} \subref{fig:multi_head_attention}.
 Multi-head attention allows the model to jointly attend to information from different representation subspaces at different positions.
 
 $$MultiHead(Q, K, V ) = Concat(head_{1}, ..., head_{h})W^O$$
@@ -80,7 +80,7 @@ DistilBERT is a small, fast, cheap and light Transformer model trained by distil
 
 \subsection{RoBERTa}
 Roberta is a transformer encoder with the same architecture as BERT, described in \ref{subsec:bert}, developed by Facebook AI. As written by \cite{liu2019roberta}, the team found that BERT was significantly undertrained, and can match or exceed the performance of every model published after it. They have just modified BERT key hyperparameters, removing the next-sentence pre-training objective and training with much larger mini-batches and learning rates. In 2019, when Facebook AI wrote the article, their best model achieved state-of-the-art results on GLUE (\cite{wang2018glue}), RACE and SQuAD.
-\subsection{T5v11}
+\subsection{T5 v1.1}
 A Google research team published the paper by \cite{raffel2019exploring}, introducing a novel “Text-to-Text Transfer Transformer” (T5) transformer model which can convert any language problem into a text-to-text format.
 \begin{figure}[H]
     \centering
@@ -91,7 +91,7 @@ A Google research team published the paper by \cite{raffel2019exploring}, introd
 The idea behind T5 was to exploit the potential of transfer learning, where a model is first pre-trained on a data-rich task before being fine-tuned on a downstream task, emerging as a powerful technique in natural language processing (NLP). The proposed model is essentially a Encoder-Decoder Transformer with some architectural changes (like applying Layer Normalization before a sub block and then adding the initial input to the sub-block output; also known as pre-norm).
 \vspace{3mm}
 
-The model configuration is similar to BERT base and we decided to use the more polished version, T5v11, since it had some improvements:
+The model configuration is similar to BERT base and we decided to use the more polished version, T5 v1.1, since it had some improvements:
 \begin{itemize}
     \item GEGLU activation in the feed-forward hidden layer, rather than ReLU.
     \item Dropout was turned off in pre-training (quality win). Dropout should be re-enabled during fine-tuning (which we did).
