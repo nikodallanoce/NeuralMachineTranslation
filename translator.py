@@ -38,7 +38,7 @@ class Translator(tf.Module):
 
         return list_tokens, decoded_sentence
 
-    def decode_sequence_beam_pruning(self, input_sentence, k=2, sequence_length=90):
+    def translate_beam_pruning(self, input_sentence, k=2, sequence_length=90):
         tokenized_input_sentence = self.tokenizer_src(input_sentence, return_tensors='tf', add_special_tokens=True,
                                                       max_length=sequence_length,
                                                       padding='max_length', truncation=True).data["input_ids"]
